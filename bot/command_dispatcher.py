@@ -38,7 +38,7 @@ async def dispatch_command(data: dict):
 
         elif command == "SAVE_PLAYLIST":
             await save_playlist(args)
-            return success("SAVE_PLAYLIST")
+            return success("SAVE_PLAYLIST", {"name": args.get("name")})
 
         elif command == "GET_AMBIENCE":
             ambience = await send_ambience()
@@ -46,7 +46,7 @@ async def dispatch_command(data: dict):
 
         elif command == "SAVE_AMBIENCE":
             await save_ambience(args)
-            return success("SAVE_AMBIENCE")
+            return success("SAVE_AMBIENCE", {"name": "Ambience"})
 
         # ===== Music Controls ===== #
         elif command == "PLAY_PLAYLIST":
