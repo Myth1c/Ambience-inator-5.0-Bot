@@ -1,7 +1,6 @@
 # bot/ipc_bridge.py
 
 import os, json, asyncio, aiohttp, time
-from ipc_server import handle_bot_command
 
 AUTH_KEY = os.getenv("AUTH_KEY")
 WEB_URL = os.getenv("WEB_URL")
@@ -31,6 +30,7 @@ class IPCBridge:
         })
         
     async def listen_loop(self):
+        from bot.ipc_server import handle_bot_command
         while True:
             try:
                 if not self.connected:

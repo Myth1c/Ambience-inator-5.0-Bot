@@ -13,7 +13,7 @@ from bot.playback import (
 )
 from bot.ambience import send_ambience, save_ambience
 from bot.playlists import send_playlists, save_playlist
-from bot.state_manager import botStatus, get_playback_state, broadcast_state
+from bot.state_manager import botStatus, get_playback_state
 from bot.control import reboot_discord_bot, start_discord_bot, stop_discord_bot, embed_generator, send_message_to_channel_ID, edit_message
 from bot.instance import botConfig
 
@@ -220,7 +220,6 @@ async def handle_bot_command(request):
         print(f"[IPC] Error while handling command {command}: {e}")
         return web.json_response({"ok": False, "error": str(e)}, status=500)
 
-
 async def start_ipc_server(bot, host="0.0.0.0", port=8765):
     global _ipc_app
     
@@ -255,8 +254,8 @@ async def update_ipc_bot_instance(new_bot):
 # ========== Helper ==========
 async def success_response():
     """Gather and broadcast the updated playback state, then return it."""
-    try:
-        await broadcast_state()
-    except Exception as e:
-        print(f"[IPC] Error broadcasting state: {e}")
-        return web.json_response({"ok": False, "error": str(e)})
+    # try:
+    #     await send_state()
+    # except Exception as e:
+    #     print(f"[IPC] Error broadcasting state: {e}")
+    #     return web.json_response({"ok": False, "error": str(e)})
