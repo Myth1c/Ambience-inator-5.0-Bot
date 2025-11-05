@@ -9,19 +9,17 @@ from bot.ipc_server import start_ipc_server
 from bot.control import start_discord_bot
 
 async def wait_for_web():
-    web_host = os.getenv("WEB_HOST", "ambience-web")
-    web_port = os.getenv("WEB_PORT", "8080")
-    url = f"http://{web_host}:{web_port}"
+    web_URL = os.getenv("WEB_URL", "https://ambienceinator-web.onrender.com")
 
     for i in range(10):
         try:
             async with aiohttp.ClientSession() as session:
-                async with session.get(url) as resp:
+                async with session.get(web_URL) as resp:
                     if resp.status in (200, 302):
                         print("[BOT] Web server detected, continuing startup")
                         return
         except Exception:
-            print(f"[BOT] Waiting for web server... ({i+1}/10)")
+            print(f"[BOT] Waiting for web server at {web_URL}... ({i+1}/10)")
             await asyncio.sleep(2)
     print("[BOT] Proceeding without web confirmation.")
 
