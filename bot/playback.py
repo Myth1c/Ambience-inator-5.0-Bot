@@ -16,7 +16,9 @@ music_queue = MusicQueue()
 song_monitor_task = None
 
 async def join_vc(bot, channel_id):
+    from bot.instance import get_bot_instance # Lazy import to prevent cyclical looping
     try:
+        bot = get_bot_instance()
         channel_id = int(channel_id)
         channel = bot.get_channel(channel_id)
 

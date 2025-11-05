@@ -80,6 +80,9 @@ class IPCBridge:
         if msg_type == "broadcast":
             print("[IPC-Bridge] Received broadcast:", data)
             return
+        
+        if msg_type == "heartbeat_check":
+            await self.safe_send({"type": "heartbeat_ack", "ts": time.time()})
 
         if command:
             print(f"[BOT] Received command: {command}")
