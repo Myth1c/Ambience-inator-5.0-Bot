@@ -2,7 +2,6 @@
 
 import os, json, asyncio, aiohttp, time
 
-from bot.command_dispatcher import dispatch_command
 from bot.state_manager import get_playback_state
 
 AUTH_KEY = os.getenv("AUTH_KEY")
@@ -62,6 +61,7 @@ class IPCBridge:
             await asyncio.sleep(5)
     
     async def handle_message(self, raw_data: str):
+        from bot.command_dispatcher import dispatch_command
         """Process a single incoming WebSocket message from the server."""
         try:
             data = json.loads(raw_data)
