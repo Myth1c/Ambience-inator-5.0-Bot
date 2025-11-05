@@ -99,11 +99,11 @@ async def dispatch_command(data: dict):
                 return fail("JOINVC", "Voice channel ID missing")
             bot = args.get("bot_instance")
             await join_vc(bot, vc_id)
-            return success("JOINVC")
+            return success("JOINEDVC")
 
         elif command == "LEAVEVC":
             await leave_vc()
-            return success("LEAVEVC")
+            return success("LEFTVC")
 
         # ===== Bot Lifecycle ===== #
         elif command == "REBOOT":
