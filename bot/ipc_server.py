@@ -13,11 +13,9 @@ from bot.playback import (
 )
 from bot.ambience import send_ambience, save_ambience
 from bot.playlists import send_playlists, save_playlist
-from bot.state_manager import botStatus, get_playback_state
+from bot.state_manager import botStatus, get_playback_state, broadcast_state
 from bot.control import reboot_discord_bot, start_discord_bot, stop_discord_bot, embed_generator, send_message_to_channel_ID, edit_message
 from bot.instance import botConfig
-from web.ws_handlers import broadcast_playback_state
-from web.ngrok_helper import get_ngrok_url
 
 routes = web.RouteTableDef()
 
@@ -176,7 +174,7 @@ async def handle_bot_command(request):
                 return web.json_response({"ok": True, "message": "Queue message updated."})
             case "UPDATE_UI_LINK":
                 print("[BOT] Received send/update UI Linke command")
-                url = await get_ngrok_url()
+
                 title = args.get("title", "# Ambience-inator")
                 description = args.get("description", "" \
                 f"\n\n#- [UI Link](<{url}>)")
@@ -252,35 +250,13 @@ async def update_ipc_bot_instance(new_bot):
     _ipc_app["bot"] = new_bot
     print("[IPC] Updated IPC server to use new bot instance.")
     
-async def broadcast_playback_state(state_data: dict):
-    """Send the current playback state to the web server for all connected clients."""
-    
-    web_host = os.getenv("WEB_HOST", "web")
-    web_port = os.getenv("WEB_PORT", "8080")
-    url = f"http://{web_host}:{web_port}/broadcast_state"
-    
-    try:
-        async with aiohttp.ClientSession() as session:
-            async with session.post(url, json={
-                "command": "PLAYBACK_STATE",
-                "state": state_data
-            }) as resp:
-                text = await resp.text()
-    except Exception as e:
-        print(f"[BOT→WEB] Failed to broadcast state: {e}")
 
    
 # ========== Helper ==========
 async def success_response():
     """Gather and broadcast the updated playback state, then return it."""
     try:
-        state = await get_playback_state()
-        await broadcast_playback_state(state)
-        return web.json_response({
-            "ok": True,
-            "command": "PLAYBACK_STATE",
-            "state": state
-        })
+        await broadcast_state()
     except Exception as e:
         print(f"[IPC] Error broadcasting state: {e}")
         return web.json_response({"ok": False, "error": str(e)})

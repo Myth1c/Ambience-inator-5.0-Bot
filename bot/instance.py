@@ -92,9 +92,6 @@ def get_bot_instance():
         
         @_bot_instance.event
         async def on_ready():
-            import asyncio
-            from bot.control import send_message_to_channel_ID
-            from web.ngrok_helper import get_ngrok_url
             
             print(f"[BOT] Logged in as {_bot_instance.user}")
             
