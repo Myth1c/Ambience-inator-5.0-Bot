@@ -37,6 +37,7 @@ class IPCBridge:
                     await self.connect()
                 async for msg in self.ws:
                     if msg.type == aiohttp.WSMsgType.TEXT:
+                        print("[BOT] Received data:", data)
                         try:
                             data = json.loads(msg.data)
                         except Exception:
