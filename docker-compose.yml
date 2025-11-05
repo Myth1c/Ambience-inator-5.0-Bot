@@ -1,9 +1,9 @@
 services:
   ambience-bot:
-  build: .
-  container_name: ambienceinator-bot
-  restart: unless-stopped
-  env_file: .env
-  volumes:
-    - ./data:/app/data
-  command: ["python3", "bot_runner.py"]
+    build: .
+    container_name: ambience-inator-bot
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - ./data:/app/data    # optional, if you have data files
+    command: ["python3", "bot_runner.py"]
