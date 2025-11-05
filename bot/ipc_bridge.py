@@ -3,6 +3,7 @@
 import os, json, asyncio, aiohttp, time
 
 from bot.command_dispatcher import dispatch_command
+from bot.state_manager import get_playback_state
 
 AUTH_KEY = os.getenv("AUTH_KEY")
 WEB_URL = os.getenv("WEB_URL")
@@ -13,6 +14,7 @@ class IPCBridge:
         self.session = None
         self.ws = None
         self.connected = False
+        self.heartbeat_task = None
     
     async def connect(self):
         if self.session is None:
@@ -31,6 +33,10 @@ class IPCBridge:
             "ts": time.time()
         })
         
+        # Start heartbeat loop if not already running
+        if not self.heartbeat_task or self.heartbeat_task.done():
+            self.heartbeat_task = asyncio.create_task(self.start_heartbeat())
+        
     async def listen_loop(self):
         while True:
             try:
@@ -38,22 +44,7 @@ class IPCBridge:
                     await self.connect()
                 async for msg in self.ws:
                     if msg.type == aiohttp.WSMsgType.TEXT:
-                        try:
-                            data = json.loads(msg.data)
-                            print("[BOT] Received data:", data)
-                        except Exception:
-                            print("[IPC-Bridge] Invalid JSON from server:", msg.data)
-                            continue
-                        
-                        # Expect a command payload such as {"command": "PLAY", ...}
-                        if "command" in data:
-                            result = await dispatch_command(data)
-                            await self.safe_send(result)
-
-                        else:
-                            # Other notifications for the bot can be handled here
-                            pass
-                        
+                        await self.handle_message(msg.data)
                     elif msg.type == aiohttp.WSMsgType.CLOSED:
                         print("[IPC-Bridge] WS closed")
                         self.connected = False
@@ -69,7 +60,48 @@ class IPCBridge:
             
             # Rest before a reconnect
             await asyncio.sleep(5)
-            
+    
+    async def handle_message(self, raw_data: str):
+        """Process a single incoming WebSocket message from the server."""
+        try:
+            data = json.loads(raw_data)
+        except json.JSONDecodeError:
+            print("[IPC-Bridge] Received invalid JSON:", raw_data)
+            return
+
+        msg_type = data.get("type")
+        command = data.get("command")
+
+        # === Handle by message type ===
+        if msg_type == "server_ack":
+            print("[IPC-Bridge] Server acknowledged connection.")
+            return
+
+        if msg_type == "broadcast":
+            print("[IPC-Bridge] Received broadcast:", data)
+            return
+
+        if command:
+            print(f"[BOT] Received command: {command}")
+            result = await dispatch_command(data)
+            await self.safe_send(result)
+        else:
+            print("[IPC-Bridge] Ignored message without 'command' or known 'type'.")
+
+    
+    async def start_heartbeat(self):
+        """Periodically broadcast bot state to the server."""
+        print("[IPC-Bridge] Heartbeat started (interval 30s)")
+        while self.connected:
+            try:
+                state = await get_playback_state()
+                await self.send_state(state)
+            except Exception as e:
+                print("[IPC-Bridge] Heartbeat send failed:", e)
+            await asyncio.sleep(30)
+        print("[IPC-Bridge] Heartbeat stopped")
+
+    
     async def safe_send(self, payload: dict):
         if not self.connected or self.ws is None:
             return
@@ -80,6 +112,10 @@ class IPCBridge:
             
     async def close(self):
         self.connected = False
+        
+        if self.heartbeat_task:
+            self.heartbeat_task.cancel()
+            
         try:
             if self.ws is not None:
                 await self.ws.close()
