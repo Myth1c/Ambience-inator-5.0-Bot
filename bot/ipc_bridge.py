@@ -47,23 +47,9 @@ class IPCBridge:
                         
                         # Expect a command payload such as {"command": "PLAY", ...}
                         if "command" in data:
-                            try:
-                                result = await dispatch_command(data)
-                                # Respond and acknowledge command
-                                await self.safe_send({
-                                    "type": "command_result",
-                                    "ok": True,
-                                    "for": data.get("command"),
-                                    "result": result
-                                })
-                                
-                            except Exception as e:
-                                await self.safe_send({
-                                    "type": "command_result",
-                                    "ok": False,
-                                    "for": data.get("command"),
-                                    "error": str(e)
-                                })
+                            result = await dispatch_command(data)
+                            await self.safe_send(result)
+
                         else:
                             # Other notifications for the bot can be handled here
                             pass
