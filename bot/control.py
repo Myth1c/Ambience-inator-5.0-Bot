@@ -17,10 +17,6 @@ async def start_discord_bot():
 
     bot = get_bot_instance()
     
-    from bot.ipc_server import update_ipc_bot_instance
-    
-    await update_ipc_bot_instance(bot)
-    
     try:
         print("[CONTROL] Starting Discord bot...")
         await bot.start(token)
@@ -28,8 +24,6 @@ async def start_discord_bot():
         print("[CONTROL] Bot start cancelled.")
     except Exception as e:
         print(f"[CONTROL] Failed to start bot: {e}")
-    
-
 
 # === STOP BOT ===
 async def stop_discord_bot():
@@ -54,8 +48,6 @@ async def stop_discord_bot():
         
     await stop_ipc_bridge()
 
-
-
 # === REBOOT BOT ===
 async def reboot_discord_bot():
     """Fully restart the bot process."""
@@ -69,6 +61,7 @@ async def reboot_discord_bot():
     await asyncio.sleep(2)
     
     await start_discord_bot()
+
 
 # === Message Helpers ===
 async def send_message_to_channel_ID(message: str = None, embed=None, channel_id: int = None):

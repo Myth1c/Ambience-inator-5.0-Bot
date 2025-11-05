@@ -2,6 +2,8 @@
 
 import os, json, asyncio, aiohttp, time
 
+from bot.command_dispatcher import dispatch_command
+
 AUTH_KEY = os.getenv("AUTH_KEY")
 WEB_URL = os.getenv("WEB_URL")
 WS_URL = WEB_URL.replace("https", "wss") + "/ipc"
@@ -30,7 +32,6 @@ class IPCBridge:
         })
         
     async def listen_loop(self):
-        from bot.ipc_server import handle_bot_command
         while True:
             try:
                 if not self.connected:
@@ -47,7 +48,7 @@ class IPCBridge:
                         # Expect a command payload such as {"command": "PLAY", ...}
                         if "command" in data:
                             try:
-                                result = await handle_bot_command(data)
+                                result = await dispatch_command(data)
                                 # Respond and acknowledge command
                                 await self.safe_send({
                                     "type": "command_result",

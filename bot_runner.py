@@ -5,7 +5,6 @@ import os
 import aiohttp
 
 from bot.instance import get_bot_instance
-from bot.ipc_server import start_ipc_server
 from bot.control import start_discord_bot
 
 async def wait_for_web():
@@ -34,12 +33,7 @@ async def main():
 
     # Attach token to bot for reuse
     bot = get_bot_instance()
-    bot.http.token = bot_token
-
-    # Start the IPC server in the background
-    asyncio.create_task(start_ipc_server(bot))
-    print("[RUNNER] IPC server started")
-    
+    bot.http.token = bot_token 
 
     # Start the Discord bot using our control lifecycle logic
     await wait_for_web()
