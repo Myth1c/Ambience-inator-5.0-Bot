@@ -1,8 +1,6 @@
 # bot/state.py
 
-import aiohttp
 import os
-import time
 
 AUTH_KEY = os.getenv("AUTH_KEY")
 WEB_URL = os.getenv("WEB_URL")
@@ -53,23 +51,3 @@ async def get_playback_state():
         "in_vc": botStatus.in_vc,
         "bot_online": botStatus.is_running
     },
-
-async def broadcast_state():
-    """Send the current bot + playback state to the web backend."""
-    try:
-        state = await get_playback_state()
-        payload = {
-            "auth": AUTH_KEY,
-            "timestamp": time.time(),
-            **state  # merge playback state into root
-        }
-
-        async with aiohttp.ClientSession() as session:
-            async with session.post(f"{WEB_URL}/broadcast_state", json=payload) as resp:
-                if resp.status == 200:
-                    print(f"[BOT] State broadcasted successfully ({time.strftime('%X')})")
-                else:
-                    print(f"[BOT] Failed to broadcast state: HTTP {resp.status}")
-    except Exception as e:
-        print(f"[BOT] Broadcast error: {e}")
-

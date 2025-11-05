@@ -5,7 +5,7 @@ import sys
 import discord
 
 from bot.state_manager import botStatus
-from bot.instance import get_bot_instance, clear_bot_instance, botConfig
+from bot.instance import get_bot_instance, clear_bot_instance, botConfig, stop_ipc_bridge
 from datetime import datetime
 
 # === START BOT ===
@@ -51,6 +51,8 @@ async def stop_discord_bot():
 
     except Exception as e:
         print(f"[CONTROL] Error while stopping bot: {e}")
+        
+    await stop_ipc_bridge()
 
 
 

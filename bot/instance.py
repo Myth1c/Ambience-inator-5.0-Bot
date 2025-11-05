@@ -1,12 +1,15 @@
 # bot/instance.py
-import discord
-import os
+
+import discord, os, asyncio
 
 from discord.ext import commands
 from bot.state_manager import botStatus
 from config.json_helper import load_json, save_json
+from bot.ipc_bridge import IPCBridge
 
 _bot_instance = None  # Singleton holder
+_ipc_bridge = None
+_ipc_task = None
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 CONFIG_FILE = os.path.join(BASE_DIR, "config/bot_config.json")
@@ -92,6 +95,7 @@ def get_bot_instance():
         
         @_bot_instance.event
         async def on_ready():
+            global _ipc_bridge, _ipc_task
             
             print(f"[BOT] Logged in as {_bot_instance.user}")
             
@@ -103,6 +107,12 @@ def get_bot_instance():
             # botStatus.ngrok_message_id = await send_message_to_channel_ID(ngrok_message, channel_id=None)
             
             await botConfig.load_bot_config()
+            
+            # === Start the IPC Bridge ===
+            if _ipc_bridge is None:
+                _ipc_bridge = IPCBridge()
+                _ipc_task = asyncio.create_task(_ipc_bridge.listen_loop())
+                print("[INSTANCE] IPC Bridge started")
 
     return _bot_instance
 
@@ -118,5 +128,16 @@ def clear_bot_instance():
     global _bot_instance
     _bot_instance = None
 
+async def stop_ipc_bridge():
+    global _ipc_bridge, _ipc_task
+    
+    if _ipc_bridge:
+        await _ipc_bridge.close()
+        _ipc_bridge = None
+    if _ipc_task:
+        _ipc_task.cancel()
+        _ipc_task = None
+        
+    print("[INSTANCE] IPC Bridge Stopped")
        
 botConfig = BotConfig()
