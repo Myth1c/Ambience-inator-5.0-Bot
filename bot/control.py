@@ -1,0 +1,210 @@
+# bot/control.py
+import asyncio
+import os
+import sys
+import discord
+
+from bot.state_manager import botStatus
+from bot.instance import get_bot_instance, clear_bot_instance, botConfig
+from datetime import datetime
+
+# === START BOT ===
+async def start_discord_bot():
+    """Start the Discord bot using a fresh instance if needed."""
+    token = os.getenv("BOT_TOKEN")
+    if not token:
+        raise RuntimeError("[CONTROL] BOT_TOKEN environment variable not set")
+
+    bot = get_bot_instance()
+    
+    from bot.ipc_server import update_ipc_bot_instance
+    
+    await update_ipc_bot_instance(bot)
+    
+    try:
+        print("[CONTROL] Starting Discord bot...")
+        await bot.start(token)
+    except asyncio.CancelledError:
+        print("[CONTROL] Bot start cancelled.")
+    except Exception as e:
+        print(f"[CONTROL] Failed to start bot: {e}")
+    
+
+
+# === STOP BOT ===
+async def stop_discord_bot():
+    """Gracefully disconnect from VC and close the Discord client."""
+    bot = get_bot_instance()
+    print("[CONTROL] Stopping Discord bot...")
+
+    try:
+        if botStatus.voice_client and botStatus.voice_client.is_connected():
+            await botStatus.voice_client.disconnect(force=True)
+            botStatus.in_vc = False
+            print("[CONTROL] Disconnected from voice channel")
+
+        if not bot.is_closed():
+            await bot.close()
+            print("[CONTROL] Discord bot stopped cleanly")
+
+        clear_bot_instance()
+
+    except Exception as e:
+        print(f"[CONTROL] Error while stopping bot: {e}")
+
+
+
+# === REBOOT BOT ===
+async def reboot_discord_bot():
+    """Fully restart the bot process."""
+    print("[CONTROL] Rebooting Discord bot...")
+
+    try:
+        await stop_discord_bot()
+    except Exception as e:
+        print(f"[CONTROL] Error during reboot stop: {e}")
+
+    await asyncio.sleep(2)
+    
+    await start_discord_bot()
+
+# === Message Helpers ===
+async def send_message_to_channel_ID(message: str = None, embed=None, channel_id: int = None):
+    """Safely send a message to the specified channel once the bot is ready."""
+    bot = get_bot_instance()
+
+    if not bot:
+        print("[BOT] send_message_to_channel_ID: No bot instance available.")
+        return
+
+    # Wait until bot is ready
+    if not bot.is_ready():
+        print("[BOT] Waiting for bot to become ready before sending message...")
+        try:
+            await bot.wait_until_ready()
+        except Exception as e:
+            print(f"[BOT] wait_until_ready failed: {e}")
+            return
+
+    # Resolve channel ID from config if not provided
+
+    if not channel_id:
+        channel_id = int(botConfig.text_channel_id)
+        if not channel_id:
+            print("[BOT] No text_channel_id found in botConfig")
+            return
+
+
+    # Fetch channel safely
+    try:
+        channel = bot.get_channel(channel_id)
+        if channel is None:
+            print(f"[BOT] Channel {channel_id} not in cache, fetching...")
+            channel = await bot.fetch_channel(channel_id)
+
+        if not channel:
+            print(f"[BOT] Could not resolve channel {channel_id}.")
+            return
+
+        # Finally send the message
+        if embed:
+            return await channel.send(embed=embed)
+        else:     
+            print(f"[BOT] Successfully sent message to channel {channel_id}")
+            return await channel.send(message)
+
+    except Exception as e:
+        print(f"[BOT] Error sending message: {e}")
+
+def embed_generator(
+    title: str = "title", 
+    description: str = "description", 
+    color: int = 0x2f3136, 
+    timestamp : datetime | str = None,
+    author: dict = None, 
+    thumbnail: dict = None, 
+    image: dict = None, 
+    fields: list = [], 
+    footer: dict | str = None):
+    
+    embed = discord.Embed(title=title, description=description, color=color)
+    
+    # Timestamp
+    if timestamp:
+        if isinstance(timestamp, str):
+            try:
+                embed.timestamp = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
+            except ValueError:
+                pass
+        elif isinstance(timestamp, datetime):
+            embed.timestamp = timestamp
+
+    # Author
+    if isinstance(author, dict):
+        embed.set_author(
+            name=author.get("name", ""),
+            url=author.get("url"),
+            icon_url=author.get("icon_url")
+        )
+
+    # Images
+    if isinstance(thumbnail, dict):
+        embed.set_thumbnail(url=thumbnail.get("url"))
+    if isinstance(image, dict):
+        embed.set_image(url=image.get("url"))
+
+    # Footer
+    if footer:
+        if isinstance(footer, dict):
+            embed.set_footer(
+                text=footer.get("text", ""),
+                icon_url=footer.get("icon_url")
+            )
+        elif isinstance(footer, str):
+            embed.set_footer(text=footer)
+        
+    # Fields
+    if fields:
+        for field in fields:
+            embed.add_field(
+                name=field.get("name", "Field"),
+                value=field.get("value", ""),
+                inline=field.get("inline", False)
+            )
+       
+     
+    return embed
+
+async def edit_message(message_id: int, message: str = None, embed: discord.Embed = None):
+    if not message_id:
+        raise ValueError("[BOT] No valid message reference provided")
+    
+    _message = None
+    try:
+        channel = get_bot_instance().get_channel(int(botConfig.text_channel_id))
+        if channel is None:
+            bot = get_bot_instance()
+            channel = await bot.fetch_channel(int(botConfig.text_channel_id))
+        _message = await channel.fetch_message(message_id)
+    except Exception as e:
+        print(f"[BOT] Failed to fetch message {message_id}: {e}")
+        return None 
+    
+    try:
+        if embed:
+            await _message.edit(embed=embed)
+        elif message:
+            await _message.edit(content=message)
+        else:
+            raise ValueError("[BOT] No valid parameters to edit message were given")
+        return message_id
+        
+    except discord.NotFound:
+        print("[BOT] Message not found; cannot edit (likely deleted)")
+    except discord.Forbidden:
+        print("[BOT] Missing permissions to edit message")
+    except Exception as e:
+        print(f"[BOT] Error editing embed message: {e}")
+        
+    return None
+    
