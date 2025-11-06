@@ -6,7 +6,7 @@ import yt_dlp
 
 
 from pathlib import Path
-from bot.state_manager import botStatus, playbackInfo
+from bot.state_manager import botStatus, playbackInfo, get_playback_state
 from bot.queue import MusicQueue
 from bot.audiomixer import audioMixer, audioSource
 from config.json_helper import load_json
@@ -51,7 +51,7 @@ async def join_vc(bot, channel_id):
         botStatus.in_vc = False
         
         
-    await _ipc_bridge.send_state()
+    await _ipc_bridge.send_state(get_playback_state())
     
 async def leave_vc():
     """Disconnect from the voice channel and stop all playback."""
@@ -82,7 +82,7 @@ async def leave_vc():
 
             print("[BOT] VC disconnected successfully.")
         
-    await _ipc_bridge.send_state()
+    await _ipc_bridge.send_state(get_playback_state())
     
 async def skip():
     next_track = music_queue.next_track()
@@ -106,14 +106,14 @@ async def toggle_shuffle():
     botStatus.shuffle_mode = not botStatus.shuffle_mode
     print(f"[BOT] Shuffle Mode: {botStatus.shuffle_mode}")
         
-    await _ipc_bridge.send_state()
+    await _ipc_bridge.send_state(get_playback_state())
     
 async def toggle_loop():
     mode = music_queue.toggle_loop_current()
     botStatus.loop_mode = (mode == "current track")
     print(f"[BOT] Loop mode: {music_queue.loop_current}")
         
-    await _ipc_bridge.send_state()
+    await _ipc_bridge.send_state(get_playback_state())
 
 async def load_playlist(name: str, file: str = "playlists.json"):
     playlists = load_json(Path("data") / file, default_data={})
@@ -137,7 +137,7 @@ async def load_playlist(name: str, file: str = "playlists.json"):
     
     print(f"[BOT] Loaded playlist: {name} ({len(track_list)} tracks)")
         
-    await _ipc_bridge.send_state()
+    await _ipc_bridge.send_state(get_playback_state())
 
 async def set_volume(track_type: str, volume: int):
     
@@ -157,7 +157,7 @@ async def set_volume(track_type: str, volume: int):
         print(f"[BOT] Unknown track type '{track_type}'")
         
         
-    await _ipc_bridge.send_state()
+    await _ipc_bridge.send_state(get_playback_state())
         
 async def pause_track(track_type: str):
     if track_type == "music":
@@ -174,7 +174,7 @@ async def pause_track(track_type: str):
         print(f"[BOT] Unknown track type '{track_type}'")
         
         
-    await _ipc_bridge.send_state()
+    await _ipc_bridge.send_state(get_playback_state())
 
 async def resume_track(track_type: str):
     if track_type == "music":
@@ -191,7 +191,7 @@ async def resume_track(track_type: str):
         print(f"[BOT] Unknown track type '{track_type}'")
         
         
-    await _ipc_bridge.send_state()
+    await _ipc_bridge.send_state(get_playback_state())
         
 async def play_ambience(url: str, title: str):
     if not botStatus.voice_client:
@@ -225,7 +225,7 @@ async def play_ambience(url: str, title: str):
         print(f"[BOT] Failed to play ambience: {e}")
         
         
-    await _ipc_bridge.send_state()
+    await _ipc_bridge.send_state(get_playback_state())
                
 async def play_music():
     global song_monitor_task
@@ -274,7 +274,7 @@ async def play_music():
         song_monitor_task.cancel()
     song_monitor_task = asyncio.create_task(monitor_song_end())
             
-    await _ipc_bridge.send_state()
+    await _ipc_bridge.send_state(get_playback_state())
         
         
         
