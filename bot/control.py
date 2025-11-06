@@ -108,65 +108,6 @@ async def send_message_to_channel_ID(message: str = None, embed=None, channel_id
     except Exception as e:
         print(f"[BOT] Error sending message: {e}")
 
-def embed_generator(
-    title: str = "title", 
-    description: str = "description", 
-    color: int = 0x2f3136, 
-    timestamp : datetime | str = None,
-    author: dict = None, 
-    thumbnail: dict = None, 
-    image: dict = None, 
-    fields: list = [], 
-    footer: dict | str = None):
-    
-    embed = discord.Embed(title=title, description=description, color=color)
-    
-    # Timestamp
-    if timestamp:
-        if isinstance(timestamp, str):
-            try:
-                embed.timestamp = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
-            except ValueError:
-                pass
-        elif isinstance(timestamp, datetime):
-            embed.timestamp = timestamp
-
-    # Author
-    if isinstance(author, dict):
-        embed.set_author(
-            name=author.get("name", ""),
-            url=author.get("url"),
-            icon_url=author.get("icon_url")
-        )
-
-    # Images
-    if isinstance(thumbnail, dict):
-        embed.set_thumbnail(url=thumbnail.get("url"))
-    if isinstance(image, dict):
-        embed.set_image(url=image.get("url"))
-
-    # Footer
-    if footer:
-        if isinstance(footer, dict):
-            embed.set_footer(
-                text=footer.get("text", ""),
-                icon_url=footer.get("icon_url")
-            )
-        elif isinstance(footer, str):
-            embed.set_footer(text=footer)
-        
-    # Fields
-    if fields:
-        for field in fields:
-            embed.add_field(
-                name=field.get("name", "Field"),
-                value=field.get("value", ""),
-                inline=field.get("inline", False)
-            )
-       
-     
-    return embed
-
 async def edit_message(message_id: int, message: str = None, embed: discord.Embed = None):
     if not message_id:
         raise ValueError("[BOT] No valid message reference provided")

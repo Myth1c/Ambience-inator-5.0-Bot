@@ -9,7 +9,7 @@ from bot.playback import (
 from bot.ambience import return_ambience, save_ambience
 from bot.playlists import return_playlists, save_playlist
 from bot.state_manager import botStatus, get_playback_state
-from bot.control import reboot_discord_bot, start_discord_bot, stop_discord_bot, embed_generator, send_message_to_channel_ID, edit_message
+from bot.control import reboot_discord_bot, start_discord_bot, stop_discord_bot
 from bot.instance import botConfig
 
 
@@ -140,11 +140,6 @@ async def dispatch_command(data: dict):
             return success("BOT_STATUS", {"online": botStatus.is_running})
 
         # ===== Discord Message Updates ===== #
-        elif command == "UPDATE_QUEUE_MESSAGE":
-            return await handle_queue_message_update(args)
-
-        elif command == "UPDATE_UI_LINK":
-            return await handle_ui_link_update(args)
 
         # ===== Default ===== #
         else:
@@ -154,49 +149,6 @@ async def dispatch_command(data: dict):
     except Exception as e:
         print(f"[DISPATCH] Error while handling {command}: {e}")
         return fail(command, str(e))
-
-
-# ========== Helper Handlers ==========
-async def handle_queue_message_update(args):
-    """Update or create the queue message embed."""
-    title = args.get("title", "Playlist Name")
-    description = args.get("description", "\n# **Current Song Name**")
-    color = args.get("color", 0x2f3136)
-    fields = args.get("fields", [])
-    embed = embed_generator(title=title, description=description, color=color, fields=fields)
-
-    if botStatus.queue_message_id:
-        print("[CMD] Editing existing queue message.")
-        botStatus.queue_message_id = await edit_message(botStatus.queue_message_id, embed=embed)
-    else:
-        print("[CMD] Creating new queue message.")
-        msg = await send_message_to_channel_ID(embed=embed)
-        botStatus.queue_message_id = msg.id
-        botConfig.save_bot_config({"queue_message_id": botStatus.queue_message_id})
-
-    return success("UPDATE_QUEUE_MESSAGE")
-
-
-async def handle_ui_link_update(args):
-    """Update or create the UI link embed."""
-    title = args.get("title", "# Ambience-inator")
-    description = args.get("description", "# [UI Link](<https://myth1c.github.io/Ambience-inator>)")
-    color = args.get("color", 0x2f3136)
-    fields = args.get("fields", [
-        {"name": "Bot Status", "value": f"Bot is currently {botStatus.is_running}"}
-    ])
-    embed = embed_generator(title=title, description=description, color=color, fields=fields)
-
-    if botStatus.ngrok_message_id:
-        print("[CMD] Editing existing UI Link message.")
-        botStatus.ngrok_message_id = await edit_message(botStatus.ngrok_message_id, embed=embed)
-    else:
-        print("[CMD] Creating new UI Link message.")
-        msg = await send_message_to_channel_ID(embed=embed)
-        botStatus.ngrok_message_id = msg.id
-        botConfig.save_bot_config({"ngrok_message_id": botStatus.ngrok_message_id})
-
-    return success("UPDATE_UI_LINK")
 
 
 # ========== Response Helpers ==========
