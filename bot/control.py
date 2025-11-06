@@ -1,8 +1,5 @@
 # bot/control.py
-import asyncio
-import os
-import sys
-import discord
+import asyncio, os, discord
 
 from bot.state_manager import botStatus
 from bot.instance import get_bot_instance, clear_bot_instance, botConfig, stop_ipc_bridge

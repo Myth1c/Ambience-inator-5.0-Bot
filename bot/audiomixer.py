@@ -1,7 +1,5 @@
-import subprocess
-import numpy as np
-import discord
-import os
+import subprocess, numpy as np, discord, os
+
 
 class MixedAudio():
     def __init__(self):

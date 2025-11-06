@@ -1,9 +1,6 @@
 # bot/playback.py
 
-import asyncio
-import discord
-import yt_dlp
-
+import asyncio, discord, yt_dlp
 
 from pathlib import Path
 from bot.state_manager import botStatus, playbackInfo, get_playback_state
