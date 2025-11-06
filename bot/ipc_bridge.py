@@ -128,5 +128,5 @@ class IPCBridge:
                 await self.session.close()
     
     async def send_state(self, state: dict):
-        await self.safe_send({"type":"state_update", "auth": AUTH_KEY, "payload": state, "ts": time.time()})
+        await self.safe_send({"type":"state_update", "payload": state, "ts": time.time()})
 
