@@ -32,7 +32,7 @@ class PlaybackInfo:
 botStatus = BotStatus()
 playbackInfo = PlaybackInfo()
 
-async def get_playback_state():
+def get_playback_state():
     """Return the current playback state in frontend-compatible format."""
     payload = {
         "music": {

@@ -7,7 +7,7 @@ from config.json_helper import load_json, save_json
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))  # /app
 AMBIENCE_FILE = os.path.join(BASE_DIR, "data/ambience.json")
 
-async def send_ambience():
+def return_ambience():
     ambience_data = load_json(AMBIENCE_FILE, default_data={})
     
     return ambience_data

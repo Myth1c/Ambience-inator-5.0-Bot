@@ -6,8 +6,8 @@ from bot.playback import (
     play_music, skip, previous, toggle_shuffle, toggle_loop, set_volume,
     play_ambience, pause_track, resume_track, join_vc, leave_vc, load_playlist
 )
-from bot.ambience import send_ambience, save_ambience
-from bot.playlists import send_playlists, save_playlist
+from bot.ambience import return_ambience, save_ambience
+from bot.playlists import return_playlists, save_playlist
 from bot.state_manager import botStatus, get_playback_state
 from bot.control import reboot_discord_bot, start_discord_bot, stop_discord_bot, embed_generator, send_message_to_channel_ID, edit_message
 from bot.instance import botConfig
@@ -36,7 +36,7 @@ async def dispatch_command(data: dict):
             return success("SETUP_SAVE")
 
         elif command == "GET_PLAYBACK_STATE":
-            state = await get_playback_state()
+            state = get_playback_state()
             resp = {
                 "type":"state_update", 
                 "payload": state, 
@@ -45,7 +45,7 @@ async def dispatch_command(data: dict):
             return resp
 
         elif command == "GET_PLAYLISTS":
-            playlists = await send_playlists()
+            playlists = return_playlists()
             return success("PLAYLISTS_DATA", {"playlists": playlists})
 
         elif command == "SAVE_PLAYLIST":
@@ -53,7 +53,7 @@ async def dispatch_command(data: dict):
             return success("SAVE_PLAYLIST", {"name": args.get("name")})
 
         elif command == "GET_AMBIENCE":
-            ambience = await send_ambience()
+            ambience = return_ambience()
             return success("AMBIENCE_DATA", {"ambience": ambience})
 
         elif command == "SAVE_AMBIENCE":

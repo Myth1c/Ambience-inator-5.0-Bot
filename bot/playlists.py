@@ -7,10 +7,10 @@ from config.json_helper import load_json, save_json
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))  # /app
 PLAYLIST_FILE = os.path.join(BASE_DIR, "data/playlists.json")
 
-async def send_playlists():
+def return_playlists():
     playlists = load_json(PLAYLIST_FILE, default_data={})
     
-    print(f"[IPC] Sending playlists: {playlists}")
+    print(f"[BOT] Fetching playlists: {playlists}")
     return playlists
     
 async def save_playlist(data):
