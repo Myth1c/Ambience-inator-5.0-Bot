@@ -18,9 +18,16 @@ async def dispatch_command(data: dict):
     """Route commands from IPC or internal sources to their handlers."""
 
     command = data.get("command")
-    args = data.get("args", {}) or {}
-
+    
+    # === Build args dynamically from all incoming keys except 'command' ===
+    args = {}
+    for key, value in data.items():
+        if key != "command":
+            args[key] = value
+    
     print(f"[DISPATCH] Received command: {command}")
+    print(f"[DISPATCH] Dispatcher received args: {args}")
+
 
     try:
         # ===== Setup / Config ===== #
