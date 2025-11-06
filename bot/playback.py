@@ -133,7 +133,6 @@ async def load_playlist(name: str, file: str = "playlists.json"):
     print(f"[BOT] Loaded playlist: {name} ({len(track_list)} tracks)")
         
     await _ipc_bridge.send_state(get_playback_state())
-    await _ipc_bridge.send_queue_state(music_queue.get_queue())
 
 async def set_volume(track_type: str, volume: int):
     
@@ -271,7 +270,6 @@ async def play_music():
     song_monitor_task = asyncio.create_task(monitor_song_end())
             
     await _ipc_bridge.send_state(get_playback_state())
-    await _ipc_bridge.send_queue_state(music_queue.get_queue())
         
         
         

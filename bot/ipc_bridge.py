@@ -134,7 +134,3 @@ class IPCBridge:
     
     async def send_state(self, state: dict):
         await self.safe_send({"type":"state_update", "payload": state, "ts": time.time()})
-
-
-    async def send_queue_state(self, queue: dict, playlist_name: str = "None"):
-        await self.safe_send({"type" : "queue_update", "payload": {**queue, "playlist_name": playlist_name}, "ts": time.time()})
