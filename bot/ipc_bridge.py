@@ -98,7 +98,6 @@ class IPCBridge:
         else:
             print("[IPC-Bridge] Ignored message without 'command' or known 'type'.")
 
-    
     async def start_heartbeat(self, interval=60):
         """Periodically broadcast bot state to the server."""
         print("[IPC-Bridge] Heartbeat started (interval default 60s)")
@@ -111,7 +110,6 @@ class IPCBridge:
                 self.connected = False
             await asyncio.sleep(interval)
         print("[IPC-Bridge] Heartbeat stopped")
-
     
     async def safe_send(self, payload: dict):
         if not self.connected or self.ws is None:
