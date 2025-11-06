@@ -131,7 +131,6 @@ async def load_playlist(name: str, file: str = "playlists.json"):
     playbackInfo.playlist_name = name
     playbackInfo.playlist = track_list
     playbackInfo.playlist_current = track_list[0] if track_list else {"url" : None, "name" : "None"}
-    playbackInfo.playlist_next = track_list[1] if len(track_list) > 1 else None
     botStatus.is_music_playing = False
     
     print(f"[BOT] Loaded playlist: {name} ({len(track_list)} tracks)")
