@@ -66,7 +66,7 @@ async def post_queue_embed():
         print(f"[BOT] Domain env variable was never set!")
         return
     
-    EMBED_LINK = f"https://{DOMAIN}/queue?format=image&ts={int(time.time())}"
+    EMBED_LINK = f"{DOMAIN}/embed/queue?format=image&ts={int(time.time())}"
     
     # Check if we've already posted the embed before posting a new one 
     msg = None
