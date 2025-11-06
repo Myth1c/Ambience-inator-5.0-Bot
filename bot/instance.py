@@ -87,14 +87,14 @@ def get_bot_instance():
             
             botStatus.is_running = "online"
             
-            # print("[RUNNER] Fetching ngrok tunnel info...")
-            # url = await get_ngrok_url()
-            # ngrok_message = f"\n# Bot Initialized!\n\n# [UI Link](<{url}>)"
-            # botStatus.ngrok_message_id = await send_message_to_channel_ID(ngrok_message, channel_id=None)
+            # --- Post the "Online Status" Embed of the bot ---
+            # If I make that, that is
             
-            await botConfig.load_bot_config()
+            # Post the first queue message on startup
+            from bot.control import post_queue_embed
+            await post_queue_embed()
             
-            # === Start the IPC Bridge ===
+            # --- Start the IPC Bridge ---
             if _ipc_bridge is None:
                 _ipc_bridge = IPCBridge()
                 _ipc_task = asyncio.create_task(_ipc_bridge.listen_loop())
