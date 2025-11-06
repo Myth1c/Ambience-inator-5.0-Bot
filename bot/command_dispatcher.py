@@ -64,45 +64,45 @@ async def dispatch_command(data: dict):
         elif command == "PLAY_PLAYLIST":
             await load_playlist(args.get("name"))
             await play_music()
-            return await state_response("PLAY_PLAYLIST")
+            return await success("PLAY_PLAYLIST")
 
         elif command == "NEXT_SONG":
             await skip()
-            return await state_response("NEXT_SONG")
+            return await success("NEXT_SONG")
 
         elif command == "PREVIOUS_SONG":
             await previous()
-            return await state_response("PREVIOUS_SONG")
+            return await success("PREVIOUS_SONG")
 
         elif command == "SET_SHUFFLE":
             await toggle_shuffle()
-            return await state_response("SET_SHUFFLE")
+            return await success("SET_SHUFFLE")
 
         elif command == "SET_LOOP":
             await toggle_loop()
-            return await state_response("SET_LOOP")
+            return await success("SET_LOOP")
 
         elif command == "SET_VOLUME_MUSIC":
             await set_volume("music", args.get("volume"))
-            return await state_response("SET_VOLUME_MUSIC")
+            return await success("SET_VOLUME_MUSIC")
 
         # ===== Ambience Controls ===== #
         elif command == "PLAY_AMBIENCE":
             await play_ambience(args.get("url"), args.get("title"))
-            return await state_response("PLAY_AMBIENCE")
+            return await success("PLAY_AMBIENCE")
 
         elif command == "SET_VOLUME_AMBIENCE":
             await set_volume("ambience", args.get("volume"))
-            return await state_response("SET_VOLUME_AMBIENCE")
+            return await success("SET_VOLUME_AMBIENCE")
 
         # ===== Pause / Resume ===== #
         elif command == "PAUSE":
             await pause_track(args.get("type"))
-            return await state_response("PAUSE")
+            return await success("PAUSE")
 
         elif command == "RESUME":
             await resume_track(args.get("type"))
-            return await state_response("RESUME")
+            return await success("RESUME")
 
         # ===== Voice Control ===== #
         elif command == "JOINVC":
@@ -208,9 +208,3 @@ def success(command, data=None):
 def fail(command, error):
     """Return a standard error response."""
     return {"ok": False, "command": command, "error": error}
-
-
-async def state_response(command):
-    """Return success and include latest playback state."""
-    state = await get_playback_state()
-    return {"ok": True, "command": command, "state": state}
