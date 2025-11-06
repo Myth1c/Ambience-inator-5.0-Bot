@@ -46,7 +46,6 @@ class BotConfig():
                     print(f"[BOT] Message {self.queue_message_id} not found — clearing from config")
                     botConfig.save_bot_config({"queue_message_id": "None"})
                     
-                    
         except Exception as e:
             print(f"[BOT] Failed to load message IDs from config: {e}")
             
@@ -87,6 +86,7 @@ def get_bot_instance():
             
             botStatus.is_running = "online"
             
+            await botConfig.load_bot_config()
             # --- Post the "Online Status" Embed of the bot ---
             # If I make that, that is
             
