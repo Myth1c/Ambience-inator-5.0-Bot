@@ -1,9 +1,8 @@
 # bot/control.py
-import asyncio, os, discord
+import asyncio, os, discord, time
 
 from bot.state_manager import botStatus
 from bot.instance import get_bot_instance, clear_bot_instance, botConfig, stop_ipc_bridge
-from datetime import datetime
 
 # === START BOT ===
 async def start_discord_bot():
@@ -59,6 +58,28 @@ async def reboot_discord_bot():
     
     await start_discord_bot()
 
+
+# === EMBED POSTERS ===
+async def post_queue_embed():
+    DOMAIN = os.getenv("WS_DOMAIN")
+    if not DOMAIN:
+        print(f"[BOT] Domain env variable was never set!")
+        return
+    
+    EMBED_LINK = f"https://{DOMAIN}/queue?format=image&ts={int(time.time())}"
+    
+    # Check if we've already posted the embed before posting a new one 
+    msg = None
+    if not botStatus.queue_message_id:
+        msg = await send_message_to_channel_ID(message=EMBED_LINK)
+    else:
+        msg = edit_message(botStatus.queue_message_id, message=EMBED_LINK)    
+    
+    print(f"[BOT] Setting queue message id to {msg.id} and saving it")
+    botStatus.queue_message_id = msg.id
+    botConfig.save_bot_config({"queue_message_id": str(botStatus.queue_message_id)})
+    
+    
 
 # === Message Helpers ===
 async def send_message_to_channel_ID(message: str = None, embed=None, channel_id: int = None):
