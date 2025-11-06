@@ -82,5 +82,6 @@ class MusicQueue:
             "tracks": self.tracks,
             "current_index" : self.current_index,
             "previous_stack" : self.previous_stack,
-            "loop_current" : self.loop_current
+            "loop_current" : self.loop_current,
+            "shuffle_mode" : (self.tracks != self._original_order)
         }
