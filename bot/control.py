@@ -61,7 +61,7 @@ async def reboot_discord_bot():
 
 # === EMBED POSTERS ===
 async def post_queue_embed():
-    DOMAIN = os.getenv("WS_DOMAIN")
+    DOMAIN = os.getenv("WEB_URL")
     if not DOMAIN:
         print(f"[BOT] Domain env variable was never set!")
         return
