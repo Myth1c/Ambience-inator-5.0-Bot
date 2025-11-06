@@ -16,19 +16,6 @@ class BotStatus:
         self.is_running = "offline"
         self.queue_message_id = None
         self.ngrok_message_id = None
-        
-    async def get_bot_status(self) -> dict:
-        return {
-            "music": {
-                "playing": self.is_music_playing,
-                "shuffle": self.shuffle_mode,
-                "loop": self.loop_mode
-            },
-            "ambience": {
-                "playing": self.is_ambience_playing
-            },
-            "in_vc": self.in_vc
-        },
 
 
 class PlaybackInfo:
@@ -40,19 +27,6 @@ class PlaybackInfo:
         self.ambience_url = None
         self.music_volume = 100
         self.ambience_volume = 25
-        
-    async def get_playback_info(self) -> dict:
-        return {
-            "music": {
-                "playlist_name": self.playlist_name,
-                "track_name": self.playlist_current["name"],
-                "volume": self.music_volume,
-            },
-            "ambience": {
-                "name": self.ambience_name,
-                "volume": self.ambience_volume,
-            }
-        },
 
 
 botStatus = BotStatus()
@@ -60,10 +34,24 @@ playbackInfo = PlaybackInfo()
 
 async def get_playback_state():
     """Return the current playback state in frontend-compatible format."""
+    payload = {
+        "music": {
+            "playlist_name": playbackInfo.playlist_name,
+            "track_name": playbackInfo.playlist_current["name"],
+            "playing": botStatus.is_music_playing,
+            "volume": playbackInfo.music_volume,
+            "shuffle": botStatus.shuffle_mode,
+            "loop": botStatus.loop_mode,
+        },
+        "ambience": {
+            "name": playbackInfo.ambience_name,
+            "playing": botStatus.is_ambience_playing,
+            "volume": playbackInfo.ambience_volume,
+        },
+        "in_vc": botStatus.in_vc,
+        "bot_online": botStatus.is_running
+    }
     
-    _bot_status = botStatus.get_bot_status()
-    _playback_info = playbackInfo.get_playback_info()
+    print(f"[IPC] Returning bot state as {payload}")
     
-    fullState = {**_bot_status, **_playback_info}
-    
-    return fullState
+    return payload
