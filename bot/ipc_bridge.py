@@ -37,10 +37,12 @@ class IPCBridge:
             self.heartbeat_task = asyncio.create_task(self.start_heartbeat())
         
     async def listen_loop(self):
+        """Continuously maintain a connection to the web IPC endpoint."""
         while True:
             try:
                 if not self.connected:
                     await self.connect()
+
                 async for msg in self.ws:
                     if msg.type == aiohttp.WSMsgType.TEXT:
                         await self.handle_message(msg.data)
@@ -55,7 +57,11 @@ class IPCBridge:
             except Exception as e:
                 print(f"[IPC-Bridge] Loop error: {e}")
                 self.connected = False
-                
+                try:
+                    if self.ws:
+                        await self.ws.close()
+                except Exception:
+                    pass
             
             # Rest before a reconnect
             await asyncio.sleep(5)
@@ -93,16 +99,17 @@ class IPCBridge:
             print("[IPC-Bridge] Ignored message without 'command' or known 'type'.")
 
     
-    async def start_heartbeat(self):
+    async def start_heartbeat(self, interval=60):
         """Periodically broadcast bot state to the server."""
-        print("[IPC-Bridge] Heartbeat started (interval 30s)")
+        print("[IPC-Bridge] Heartbeat started (interval default 60s)")
         while self.connected:
             try:
                 state = await get_playback_state()
                 await self.send_state(state)
             except Exception as e:
                 print("[IPC-Bridge] Heartbeat send failed:", e)
-            await asyncio.sleep(30)
+                self.connected = False
+            await asyncio.sleep(interval)
         print("[IPC-Bridge] Heartbeat stopped")
 
     
