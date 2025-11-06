@@ -139,8 +139,6 @@ async def dispatch_command(data: dict):
         elif command == "GET_BOT_STATUS":
             return success("BOT_STATUS", {"online": botStatus.is_running})
 
-        # ===== Discord Message Updates ===== #
-
         # ===== Default ===== #
         else:
             print(f"[DISPATCH] Unknown command: {command}")
