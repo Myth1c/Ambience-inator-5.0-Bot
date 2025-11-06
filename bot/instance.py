@@ -18,7 +18,6 @@ class BotConfig():
     def __init__(self):
         self.voice_channel_id = None,
         self.text_channel_id = None,
-        self.ngrok_message_id = None,
         self.queue_message_id = None
         
     async def load_bot_config(self):
@@ -26,7 +25,6 @@ class BotConfig():
         
         self.voice_channel_id = config.get("voice_channel_id")
         self.text_channel_id = config.get("text_channel_id")
-        self.ngrok_message_id = config.get("ngrok_message_id")
         self.queue_message_id = config.get("queue_message_id")
         
         bot = get_bot_instance()
@@ -36,18 +34,6 @@ class BotConfig():
             if channel is None:
                 channel = await bot.fetch_channel(int(self.text_channel_id))
             
-            if self.ngrok_message_id:
-                try:
-                    msg = await channel.fetch_message(int(self.ngrok_message_id))
-                    botStatus.ngrok_message_id = msg.id
-                    print(f"[BOT] Loaded ngrok message ID {botStatus.ngrok_message_id}")
-                except Exception as e:
-                    print(f"[BOT] Failed to fetch ngrok message {self.ngrok_message_id}: {e}")
-                    botConfig.save_bot_config({"ngrok_message_id": "None"})
-                except discord.NotFound:
-                    print(f"[BOT] Message {self.ngrok_message_id} not found — clearing from config")
-                    botConfig.save_bot_config({"ngrok_message_id": "None"})
-                    
             if self.queue_message_id:
                 try:
                     msg = await channel.fetch_message(int(self.queue_message_id))
