@@ -1,6 +1,6 @@
 # bot/command_dispatcher.py
 
-import asyncio
+import asyncio, time
 
 from bot.playback import (
     play_music, skip, previous, toggle_shuffle, toggle_loop, set_volume,
@@ -37,7 +37,12 @@ async def dispatch_command(data: dict):
 
         elif command == "GET_PLAYBACK_STATE":
             state = await get_playback_state()
-            return success("PLAYBACK_STATE", {"state": state})
+            resp = {
+                "type":"state_update", 
+                "payload": state, 
+                "ts": time.time()
+            }
+            return resp
 
         elif command == "GET_PLAYLISTS":
             playlists = await send_playlists()
