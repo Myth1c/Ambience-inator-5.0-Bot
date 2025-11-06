@@ -64,45 +64,45 @@ async def dispatch_command(data: dict):
         elif command == "PLAY_PLAYLIST":
             await load_playlist(args.get("name"))
             await play_music()
-            return await success("PLAY_PLAYLIST")
+            return success("PLAY_PLAYLIST")
 
         elif command == "NEXT_SONG":
             await skip()
-            return await success("NEXT_SONG")
+            return success("NEXT_SONG")
 
         elif command == "PREVIOUS_SONG":
             await previous()
-            return await success("PREVIOUS_SONG")
+            return success("PREVIOUS_SONG")
 
         elif command == "SET_SHUFFLE":
             await toggle_shuffle()
-            return await success("SET_SHUFFLE")
+            return success("SET_SHUFFLE")
 
         elif command == "SET_LOOP":
             await toggle_loop()
-            return await success("SET_LOOP")
+            return success("SET_LOOP")
 
         elif command == "SET_VOLUME_MUSIC":
             await set_volume("music", args.get("volume"))
-            return await success("SET_VOLUME_MUSIC")
+            return success("SET_VOLUME_MUSIC")
 
         # ===== Ambience Controls ===== #
         elif command == "PLAY_AMBIENCE":
             await play_ambience(args.get("url"), args.get("title"))
-            return await success("PLAY_AMBIENCE")
+            return success("PLAY_AMBIENCE")
 
         elif command == "SET_VOLUME_AMBIENCE":
             await set_volume("ambience", args.get("volume"))
-            return await success("SET_VOLUME_AMBIENCE")
+            return success("SET_VOLUME_AMBIENCE")
 
         # ===== Pause / Resume ===== #
         elif command == "PAUSE":
             await pause_track(args.get("type"))
-            return await success("PAUSE")
+            return success("PAUSE")
 
         elif command == "RESUME":
             await resume_track(args.get("type"))
-            return await success("RESUME")
+            return success("RESUME")
 
         # ===== Voice Control ===== #
         elif command == "JOINVC":
