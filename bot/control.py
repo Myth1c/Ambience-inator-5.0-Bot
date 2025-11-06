@@ -70,10 +70,14 @@ async def post_queue_embed():
     
     # Check if we've already posted the embed before posting a new one 
     msg = None
-    if not botStatus.queue_message_id:
+    if botStatus.queue_message_id:
+        msg = await edit_message(botStatus.queue_message_id, message=EMBED_LINK)
+        if msg == None:
+            botStatus.queue_message_id = None
+    
+    # If the ID we have is invalid post a new message
+    if not botStatus.queue_message_id:  
         msg = await send_message_to_channel_ID(message=EMBED_LINK)
-    else:
-        msg = edit_message(botStatus.queue_message_id, message=EMBED_LINK)    
     
     print(f"[BOT] Setting queue message id to {msg.id} and saving it")
     botStatus.queue_message_id = msg.id
