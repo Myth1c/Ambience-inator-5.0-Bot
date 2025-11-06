@@ -11,7 +11,8 @@ class MusicQueue:
         self.loop_playlist = True  # whether to restart at the beginning
         self._original_order = []  # to restore after shuffle
 
-    def set_tracks(self, track_list):
+    def set_tracks(self, track_list, playlist_name = "None"):
+        self.playlist_name = playlist_name
         self.tracks = track_list
         self._original_order = list(track_list)  # store for unshuffle
         self.current_index = 0

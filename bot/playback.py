@@ -127,7 +127,7 @@ async def load_playlist(name: str, file: str = "playlists.json"):
     track_list = [{"url": url, "name" : title} for url, title in entries.items()]
     
     # Fill queue and state
-    music_queue.set_tracks(track_list)
+    music_queue.set_tracks(track_list, name)
     playbackInfo.playlist_name = name
     playbackInfo.playlist = track_list
     playbackInfo.playlist_current = track_list[0] if track_list else {"url" : None, "name" : "None"}
