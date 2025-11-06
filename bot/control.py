@@ -3,6 +3,7 @@ import asyncio, os, discord, time
 
 from bot.state_manager import botStatus
 from bot.instance import get_bot_instance, clear_bot_instance, botConfig, stop_ipc_bridge
+from utils.queue_renderer import render_queue_embed
 
 # === START BOT ===
 async def start_discord_bot():
@@ -58,6 +59,18 @@ async def reboot_discord_bot():
     
     await start_discord_bot()
 
+
+# === Playlist Queue Display ===
+async def post_text_queue(page=1, per_page=10):
+    embed = render_queue_embed(page=page, per_page=per_page)
+    
+    # Try to edit existing message, else send new
+    if botStatus.queue_message_id:
+        botStatus.queue_message_id = await edit_message(botStatus.queue_message_id, embed=embed)
+    else:
+        msg = await send_message_to_channel_ID(embed=embed)
+        botStatus.queue_message_id = msg.id
+        botConfig.save_bot_config({"queue_message_id": botStatus.queue_message_id})
 
 # === Message Helpers ===
 async def send_message_to_channel_ID(message: str = None, embed=None, channel_id: int = None):

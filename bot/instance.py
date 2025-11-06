@@ -87,12 +87,9 @@ def get_bot_instance():
             botStatus.is_running = "online"
             
             await botConfig.load_bot_config()
-            # --- Post the "Online Status" Embed of the bot ---
-            # If I make that, that is
             
-            # Post the first queue message on startup
-            from bot.control import post_queue_embed
-            await post_queue_embed()
+            from bot.control import post_text_queue
+            await post_text_queue()
             
             # --- Start the IPC Bridge ---
             if _ipc_bridge is None:
