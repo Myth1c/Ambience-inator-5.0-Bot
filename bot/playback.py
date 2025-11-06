@@ -96,7 +96,6 @@ async def previous():
     if prev_track:
         await play_music()
         
-        
 async def toggle_shuffle():
     if botStatus.shuffle_mode:
         music_queue.unshuffle()
@@ -138,6 +137,7 @@ async def load_playlist(name: str, file: str = "playlists.json"):
     print(f"[BOT] Loaded playlist: {name} ({len(track_list)} tracks)")
         
     await _ipc_bridge.send_state(await get_playback_state())
+    await _ipc_bridge.send_queue_state(await music_queue.get_queue())
 
 async def set_volume(track_type: str, volume: int):
     
@@ -275,6 +275,7 @@ async def play_music():
     song_monitor_task = asyncio.create_task(monitor_song_end())
             
     await _ipc_bridge.send_state(await get_playback_state())
+    await _ipc_bridge.send_queue_state(await music_queue.get_queue())
         
         
         
@@ -298,8 +299,7 @@ async def get_youtube_stream(url: str) -> str:
     except Exception as e:
         print(f"[YTDLP] Error extracting audio: {e}")
         return None
-    
-    
+
 async def monitor_song_end():
     """Watch the current ffmpeg music process and auto-advance when it finishes."""
     

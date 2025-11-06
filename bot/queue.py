@@ -3,6 +3,7 @@ import random
 
 class MusicQueue:
     def __init__(self):
+        self.playlist_name = "None"
         self.tracks = []          # full playlist as a list of {"url", "name"}
         self.current_index = 0
         self.previous_stack = []
@@ -74,3 +75,12 @@ class MusicQueue:
         mode = "current track" if self.loop_current else "playlist"
         print(f"[BOT] Loop mode set to {mode}")
         return mode
+    
+    def get_queue(self) -> dict:
+        return {
+            "playlist_name": self.playlist_name,
+            "tracks": self.tracks,
+            "current_index" : self.current_index,
+            "previous_stack" : self.previous_stack,
+            "loop_current" : self.loop_current
+        }
