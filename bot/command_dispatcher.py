@@ -165,16 +165,22 @@ class CommandDispatcher:
         })
     
     async def cmd_start_bot(self, args):
-        await self.core.control.start_bot()
-        return self.success("BOT_START", {})
+        await self.core.control.start_discord_bot()
+        return self.success("BOT_STATUS", {
+            "online": self.core.state.bot_online
+        })
         
     async def cmd_stop_bot(self, args):
-        await self.core.control.stop_bot()
-        return self.success("BOT_STOP", {})
+        await self.core.control.stop_discord_bot()
+        return self.success("BOT_STATUS", {
+            "online": self.core.state.bot_online
+        })
         
     async def cmd_reboot_bot(self, args):
-        await self.core.control.reboot_bot()
-        return self.success("BOT_REBOOT", {})
+        await self.core.control.reboot_discord_bot()
+        return self.success("BOT_STATUS", {
+            "online": self.core.state.bot_online
+        })
 
     # =====================================================================
     # COMMAND TABLE

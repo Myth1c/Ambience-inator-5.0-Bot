@@ -92,6 +92,8 @@ class BotCore:
 
         self.ready = True
         print("[CORE] BotCore is fully initialized.")
+        
+        self.state.bot_online = "online"
 
 
     # =====================================================

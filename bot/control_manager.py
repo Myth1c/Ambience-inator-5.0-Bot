@@ -15,71 +15,78 @@ class ControlManager:
     # =====================================================
     # BOT LIFECYCLE
     # =====================================================
-    async def start_bot(self):
+    async def start_discord_bot(self):
         """
-        Starts the Discord bot ONCE by calling bot.start().
-        Should ONLY be called from outside the bot core.
+        Start the bot using the existing bot core
         """
         token = os.getenv("BOT_TOKEN")
-        if not token:
-            raise RuntimeError("BOT_TOKEN environment variable missing")
 
-        bot = self.core.discord_bot
-        if not bot:
-            raise RuntimeError("[CONTROL] Discord bot not created yet")
+        print("[CONTROL] Starting Discord bot...")
 
-        try:
-            print("[CONTROL] Starting bot...")
-            await bot.start(token)
+        if not self.core.discord_bot:
+            # Re-create the bot if it was somehow destroyed
+            self.core.create_discord_bot()
 
-        except asyncio.CancelledError:
-            print("[CONTROL] Bot start cancelled")
+        await self.core.discord_bot.start(token)
 
-        except Exception as e:
-            print(f"[CONTROL] Error starting bot: {e}")
-
-    async def stop_bot(self):
+    async def stop_discord_bot(self):
         """
-        Gracefully disconnect VC, stop audio playback, close WS,
+        Gracefully disconnect VC, stop audio playback,
         and shut down Discord bot.
         """
-        bot = self.core.discord_bot
-
         print("[CONTROL] Stopping Discord bot...")
+        bot = self.core.discord_bot
 
         try:
             # Disconnect from VC if needed
-            if self.core.state.voice_client:
-                vc = self.core.state.voice_client
-
-                if vc.is_connected():
-                    await vc.disconnect(force=True)
-
+            if self.core.state.voice_client and self.core.state.voice_client.is_connected():
+                await self.core.state.voice_client.disconnect(force=True)
                 self.core.state.reset_voice_state()
-                print("[CONTROL] Voice client disconnected")
-
-            # Stop IPC bridge
-            if self.core.ipc:
-                await self.core.ipc.close()
-
-            # Close Discord bot
+            
+             # Close discord client
             if bot and not bot.is_closed():
                 await bot.close()
-                print("[CONTROL] Bot closed cleanly")
+                print("[CONTROL] Discord client closed")
+            
+            self.core.state.bot_online = "offline"
 
         except Exception as e:
             print(f"[CONTROL] Error while stopping bot: {e}")
+            
+        # Reset Core's ready-flag for next startup
+        self.core._ready_event_fired = False
+        
+        # Remove the core's bot reference
+        self.core.discord_bot = None
 
         print("[CONTROL] Finished bot shutdown.")
 
-    async def reboot_bot(self):
+    async def reboot_discord_bot(self, delay: float = 5.0):
         """
-        Fully restart Discord bot.
+        Fully restart the Discord client
         """
-        print("[CONTROL] Reboot requested...")
-        await self.stop_bot()
-        await asyncio.sleep(2)
-        await self.start_bot()
+        print("[CONTROL] Rebooting Discord bot...")
+
+        try:
+            # Mark rebooting
+            self.core.state.bot_online = "rebooting"
+
+            # Stop Discord client (keeps IPC alive)
+            await self.stop_discord_bot()
+
+        except Exception as e:
+            print(f"[CONTROL] Error during reboot (stop stage): {e}")
+
+        # Small delay before restart
+        await asyncio.sleep(delay)
+
+        try:
+            await self.start_discord_bot()
+            print("[CONTROL] Reboot complete.")
+
+        except Exception as e:
+            print(f"[CONTROL] Error restarting Discord bot: {e}")
+            self.core.state.bot_online = "offline"
 
 
     # =====================================================
