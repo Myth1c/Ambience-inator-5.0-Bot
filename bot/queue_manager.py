@@ -2,7 +2,7 @@
 
 import random
 
-class MusicQueue:
+class QueueManager:
     """
     Queue/playlist logic.
     """

@@ -3,7 +3,7 @@
 import asyncio, discord, os
 from discord.ext import commands
 
-from bot import IPCBridge, PlaybackManager, StateManager, ConfigManager, MixedAudio, MixedAudioSource, MusicQueue, ContentManager, ControlManager, DisplayManager
+from bot import IPCBridge, PlaybackManager, StateManager, ConfigManager, MixedAudio, MixedAudioSource, QueueManager, ContentManager, ControlManager, DisplayManager
 
 
 class BotCore:
@@ -12,6 +12,9 @@ class BotCore:
     """
     def __init__(self):
 
+        # ---------- IPC BRIDGE ----------
+        self.ipc = IPCBridge(self)
+        
         # ---------- CONFIG MANAGER ----------
         self.botConfig = ConfigManager()
 
@@ -25,8 +28,10 @@ class BotCore:
         self.mixer = MixedAudio()
         self.audioSource = MixedAudioSource(self.mixer)
 
-        # ---------- QUEUE + PLAYBACK MANAGER ----------
-        self.queue = MusicQueue()
+        # ---------- QUEUE MANAGER ----------
+        self.queue = QueueManager()
+        
+        # ---------- PLAYBACK MANAGER ----------
         self.playback = PlaybackManager(self)
         
         # ---------- CONTENT MANAGER ----------
@@ -36,9 +41,6 @@ class BotCore:
         # ---------- DISPLAY MANAGER ----------
         self.display = DisplayManager(self)
 
-        # ---------- IPC BRIDGE ----------
-        self.ipc = IPCBridge(self)
-        
         # ---------- BOT CONTROL MANAGER ----------
         self.control = ControlManager(self)
 
