@@ -122,16 +122,14 @@ class ControlManager:
             print(f"[CONTROL] Failed to send message: {e}")
             return None
 
-    async def edit_message(self, message_id: int, content=None, embed=None):
+    async def edit_message(self, message_id: int, content=None, embed=None, channel_id=None):
         """
         Edits an existing message safely.
         """
         bot = self.core.discord_bot
-        channel_id = self.core.botConfig.get("text_channel_id")
-
+        
         if not channel_id:
-            print("[CONTROL] No text_channel_id configured")
-            return None
+            channel_id = self.core.botConfig.get("text_channel_id")
 
         try:
             channel = bot.get_channel(int(channel_id))
