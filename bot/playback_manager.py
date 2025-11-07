@@ -316,4 +316,4 @@ class PlaybackManager:
             print("[IPC] Not connected, skipping state update.")
             return
 
-        await self.core.ipc.send_state(self.core.state.to_dict())
+        await self.core.ipc.send_state()
