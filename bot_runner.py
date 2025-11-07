@@ -9,27 +9,25 @@ from bot.bot_core import BotCore
 # Wait for the Web Server (needed so IPC Bridge has somewhere to connect)
 # -------------------------------------------------------------
 async def wait_for_web():
-    web_url = os.getenv("WEB_URL")
+    """
+    Wait until the WebSocket IPC endpoint is accepting connections.
+    """
+    web_url = os.getenv("WEB_URL", "https://ambienceinator-web.onrender.com")
+    ipc_url = web_url.replace("https", "wss") + "/ipc"
 
-    if not web_url:
-        print("[RUNNER] WEB_URL not set, skipping web readiness check.")
-        return
+    print(f"[RUNNER] Waiting for IPC endpoint: {ipc_url}")
 
-    print(f"[RUNNER] Waiting for web server: {web_url}")
-
-    for i in range(10):
+    for i in range(15):
         try:
             async with aiohttp.ClientSession() as session:
-                async with session.get(web_url) as resp:
-                    if resp.status in (200, 301, 302):
-                        print("[RUNNER] Web server detected, continuing startup")
-                        return
+                async with session.ws_connect(ipc_url, timeout=5) as ws:
+                    print("[RUNNER] IPC endpoint is live!")
+                    return
         except Exception:
-            print(f"[RUNNER] Attempt {i+1}/10: Web server unreachable... retrying in 2s.")
+            print(f"[RUNNER] IPC not ready yet... ({i+1}/15)")
+            await asyncio.sleep(2)
 
-        await asyncio.sleep(2)
-
-    print("[RUNNER] Proceeding despite web server not responding.")
+    print("[RUNNER] Proceeding even though IPC didn't respond.")
 
 
 # -------------------------------------------------------------
