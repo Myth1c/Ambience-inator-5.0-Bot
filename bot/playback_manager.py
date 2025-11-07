@@ -302,7 +302,7 @@ class PlaybackManager:
                 continue  # still playing
             
             # Once the current song has ended, start the next song by "skipping" the current song since it'd be playing empty audio
-            self.skip()
+            await self.skip()
             
             await self.send_state()
             return
