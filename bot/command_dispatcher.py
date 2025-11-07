@@ -12,12 +12,6 @@ class CommandDispatcher:
     """
     def __init__(self, core):
         self.core = core
-        self.playback = core.playback
-        self.state = core.state
-        self.config = core.botConfig
-        self.content = core.content      # playlists + ambience
-        self.queue = core.queue          # active music queue
-        self.ipc = core.ipc
 
 
     # =====================================================================
@@ -55,75 +49,74 @@ class CommandDispatcher:
     # ---------- Playback & Player Control ----------
     async def cmd_play_playlist(self, args):
         name = args.get("name")
-        playlist = self.content.get_playlist(name)
+        playlist = self.core.content.get_playlist(name)
 
         if not playlist:
             return self.fail("PLAY_PLAYLIST", "Playlist not found")
 
         # Load into PlaybackManager
-        await self.playback.load_playlist(name)
-        await self.playback.play_music()
+        await self.core.playback.load_playlist(name)
+        await self.core.playback.play_music()
 
         return self.success("PLAY_PLAYLIST")
 
     async def cmd_next_song(self, args):
-        await self.playback.skip()
+        await self.core.playback.skip()
         return self.success("NEXT_SONG")
 
     async def cmd_previous_song(self, args):
-        await self.playback.previous()
+        await self.core.playback.previous()
         return self.success("PREVIOUS_SONG")
 
     async def cmd_set_shuffle(self, args):
-        await self.playback.toggle_shuffle()
+        await self.core.playback.toggle_shuffle()
         return self.success("SET_SHUFFLE")
 
     async def cmd_set_loop(self, args):
-        await self.playback.toggle_loop()
+        await self.core.playback.toggle_loop()
         return self.success("SET_LOOP")
 
     async def cmd_set_volume_music(self, args):
         vol = args.get("volume")
-        await self.playback.set_volume("music", int(vol))
+        await self.core.playback.set_volume("music", int(vol))
         return self.success("SET_VOLUME_MUSIC")
 
     async def cmd_pause(self, args):
-        await self.playback.pause(args.get("type"))
+        await self.core.playback.pause(args.get("type"))
         return self.success("PAUSE")
 
     async def cmd_resume(self, args):
-        await self.playback.resume(args.get("type"))
+        await self.core.playback.resume(args.get("type"))
         return self.success("RESUME")
 
-    # ---------- Ambience ----------
     async def cmd_play_ambience(self, args):
         url = args.get("url")
         title = args.get("title")
-        await self.playback.play_ambience(url, title)
+        await self.core.playback.play_ambience(url, title)
         return self.success("PLAY_AMBIENCE")
 
     async def cmd_set_volume_ambience(self, args):
         vol = args.get("volume")
-        await self.playback.set_volume("ambience", int(vol))
+        await self.core.playback.set_volume("ambience", int(vol))
         return self.success("SET_VOLUME_AMBIENCE")
 
     # ---------- Voice ----------
     async def cmd_joinvc(self, args):
-        vc_id = self.state.voice_channel_id
+        vc_id = self.core.botConfig.data.get("voice_channel_id")
         if not vc_id:
             return self.fail("JOINVC", "Voice channel ID missing")
 
-        await self.playback.join_vc(vc_id)
+        await self.core.playback.join_vc(vc_id)
         return self.success("JOINEDVC")
 
     async def cmd_leavevc(self, args):
-        await self.playback.leave_vc()
+        await self.core.playback.leave_vc()
         return self.success("LEFTVC")
 
     # ---------- Data: Playlists / Ambience ----------
     async def cmd_get_playlists(self, args):
         return self.success("PLAYLISTS_DATA", {
-            "playlists": self.content.get_playlists()
+            "playlists": self.core.content.get_playlists()
         })
 
     async def cmd_save_playlist(self, args):
@@ -134,12 +127,12 @@ class CommandDispatcher:
             import json
             data = json.loads(data)
 
-        await self.content.save_playlist(name, data)
+        await self.core.content.save_playlist(name, data)
         return self.success("SAVE_PLAYLIST")
 
     async def cmd_get_ambience(self, args):
         return self.success("AMBIENCE_DATA", {
-            "ambience": self.content.get_ambience()
+            "ambience": self.core.content.get_ambience()
         })
 
     async def cmd_save_ambience(self, args):
@@ -149,16 +142,16 @@ class CommandDispatcher:
             import json
             data = json.loads(data)
 
-        await self.content.save_ambience(data)
+        await self.core.content.save_ambience(data)
         return self.success("SAVE_AMBIENCE")
 
     # ---------- Config / Setup ----------
     async def cmd_setup_save(self, args):
-        self.config.save_all(args)
+        self.core.config.save_all(args)
         return self.success("SETUP_SAVE")
 
     async def cmd_get_playback_state(self, args):
-        state = self.state.to_dict()
+        state = self.core.state.get_state()
         return {
             "type": "state_update",
             "payload": state,
@@ -168,7 +161,7 @@ class CommandDispatcher:
     # ---------- Bot Lifecycle ----------
     async def cmd_get_bot_status(self, args):
         return self.success("BOT_STATUS", {
-            "online": self.state.bot_online
+            "online": self.core.state.bot_online
         })
 
 

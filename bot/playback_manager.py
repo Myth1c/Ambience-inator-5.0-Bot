@@ -15,12 +15,6 @@ class PlaybackManager:
     """
     def __init__(self, core):
         self.core = core
-        self.queue = core.queue                  # Shared queue
-        self.mixer = core.mixer                  # MixedAudio instance
-        self.audioSource = core.audioSource      # MixedAudioSource
-        self.state = core.state                  # StateManager
-        self.ipc = core.ipc                      # IPCBridge
-        self.content = core.content              # Content Manager
 
         self.monitor_task = None                 # For song auto-advance
 
@@ -47,24 +41,24 @@ class PlaybackManager:
                 raise ValueError("Invalid voice channel ID")
 
             # Disconnect existing VC
-            if self.state.voice_client and self.state.voice_client.is_connected():
-                await self.state.voice_client.disconnect(force=True)
+            if self.core.state.voice_client and self.core.state.voice_client.is_connected():
+                await self.core.state.voice_client.disconnect(force=True)
 
             # Connect new VC
-            self.state.voice_client = await channel.connect()
-            self.state.in_vc = True
+            self.core.state.voice_client = await channel.connect()
+            self.core.state.in_vc = True
 
             print(f"[BOT] Connected to VC: {channel.name}")
 
         except Exception as e:
             print(f"[BOT] Could not join VC: {e}")
-            self.state.in_vc = False
+            self.core.state.in_vc = False
 
         await self.send_state()
         await self.core.display.update_queue_display()
 
     async def leave_vc(self):
-        vc = self.state.voice_client
+        vc = self.core.state.voice_client
         if not vc:
             return
 
@@ -72,8 +66,8 @@ class PlaybackManager:
             print("[BOT] Leaving voice channel...")
 
             # Stop all audio
-            self.mixer.stop_music()
-            self.mixer.stop_ambience()
+            self.core.mixer.stop_music()
+            self.core.mixer.stop_ambience()
 
             await vc.disconnect(force=True)
 
@@ -81,7 +75,7 @@ class PlaybackManager:
             print(f"[BOT] Error leaving VC: {e}")
 
         # Reset state
-        self.state.reset_voice_state()
+        self.core.state.reset_voice_state()
 
         await self.send_state()
         await self.core.display.update_queue_display()
@@ -92,22 +86,22 @@ class PlaybackManager:
     # =====================================================================
     async def load_playlist(self, name):
         # Pull from ContentManager instead of reading files directly
-        playlists = self.content.get_playlists()
+        playlists = self.core.content.get_playlists()
         if name not in playlists:
             raise ValueError(f"Playlist '{name}' not found")
 
         entries = playlists[name]
-        tracks = self.content.playlist_to_tracklist(entries)
+        tracks = self.core.content.playlist_to_tracklist(entries)
 
         # Fill queue
-        self.queue.set_tracks(tracks, name)
+        self.core.queue.set_tracks(tracks, name)
 
         # Update state (always a dict for current)
-        self.state.playlist_name = name
-        self.state.playlist = tracks
-        self.state.playlist_current = tracks[0] if tracks else {"url": None, "name": "None"}
-        self.state.is_music_playing = False
-        self.state.shuffle_mode = False  # optional, reset
+        self.core.state.playlist_name = name
+        self.core.state.playlist = tracks
+        self.core.state.playlist_current = tracks[0] if tracks else {"url": None, "name": "None"}
+        self.core.state.is_music_playing = False
+        self.core.state.shuffle_mode = False  # optional, reset
 
         print(f"[BOT] Playlist loaded: {name} ({len(tracks)} tracks)")
         await self.send_state()
@@ -118,46 +112,46 @@ class PlaybackManager:
     # PLAYBACK CONTROLS
     # =====================================================================
     async def skip(self):
-        if self.queue.next_track():
+        if self.core.queue.next_track():
             await self.play_music()
         else:
-            self.state.is_music_playing = False
+            self.core.state.is_music_playing = False
             await self.send_state()
             
         await self.core.display.update_queue_display()
 
     async def previous(self):
-        if self.queue.previous_track():
+        if self.core.queue.previous_track():
             await self.play_music()
         else:
             await self.send_state()
 
     async def toggle_shuffle(self):
-        if self.state.shuffle_mode:
-            self.queue.unshuffle()
+        if self.core.state.shuffle_mode:
+            self.core.queue.unshuffle()
         else:
-            self.queue.shuffle()
+            self.core.queue.shuffle()
 
-        self.state.shuffle_mode = not self.state.shuffle_mode
-        print(f"[BOT] Shuffle mode: {self.state.shuffle_mode}")
+        self.core.state.shuffle_mode = not self.core.state.shuffle_mode
+        print(f"[BOT] Shuffle mode: {self.core.state.shuffle_mode}")
         await self.send_state()
         await self.core.display.update_queue_display()
 
     async def toggle_loop(self):
-        mode = self.queue.toggle_loop_current()
-        self.state.loop_mode = (mode == "current track")
+        mode = self.core.queue.toggle_loop_current()
+        self.core.state.loop_mode = (mode == "current track")
 
-        print(f"[BOT] Loop mode: {self.state.loop_mode}")
+        print(f"[BOT] Loop mode: {self.core.state.loop_mode}")
         await self.send_state()
         await self.core.display.update_queue_display()
     
     async def pause(self, track_type: str):
         if track_type == "music":
-            self.mixer.pause_music()
-            self.state.is_music_playing = False
+            self.core.mixer.pause_music()
+            self.core.state.is_music_playing = False
         elif track_type == "ambience":
-            self.mixer.pause_ambience()
-            self.state.is_ambience_playing = False
+            self.core.mixer.pause_ambience()
+            self.core.state.is_ambience_playing = False
         else:
             print(f"[BOT] Unknown track type for pause: {track_type}")
             return
@@ -165,19 +159,19 @@ class PlaybackManager:
 
     async def resume(self, track_type: str):
         if track_type == "music":
-            self.mixer.resume_music()
-            self.state.is_music_playing = True
+            self.core.mixer.resume_music()
+            self.core.state.is_music_playing = True
         elif track_type == "ambience":
-            self.mixer.resume_ambience()
-            self.state.is_ambience_playing = True
+            self.core.mixer.resume_ambience()
+            self.core.state.is_ambience_playing = True
         else:
             print(f"[BOT] Unknown track type for resume: {track_type}")
             return
 
         # If nothing is driving the VC, (re)attach the mixed source
-        vc = self.state.voice_client
+        vc = self.core.state.voice_client
         if vc and not vc.is_playing():
-            vc.play(self.audioSource)
+            vc.play(self.core.audioSource)
 
         await self.send_state()
 
@@ -189,12 +183,12 @@ class PlaybackManager:
         volume = max(0, min(volume, 100)) / 100
 
         if track_type == "music":
-            self.mixer.set_music_volume(volume)
-            self.state.music_volume = int(volume * 100)
+            self.core.mixer.set_music_volume(volume)
+            self.core.state.music_volume = int(volume * 100)
 
         elif track_type == "ambience":
-            self.mixer.set_ambience_volume(volume)
-            self.state.ambience_volume = int(volume * 100)
+            self.core.mixer.set_ambience_volume(volume)
+            self.core.state.ambience_volume = int(volume * 100)
 
         print(f"[BOT] {track_type.capitalize()} volume: {int(volume * 100)}%")
         await self.send_state()
@@ -204,12 +198,12 @@ class PlaybackManager:
     # INITIALIZE PLAYBACK
     # =====================================================================
     async def play_music(self):
-        vc = self.state.voice_client
+        vc = self.core.state.voice_client
         if not vc:
             print("[BOT] VC not connected.")
             return
 
-        track = self.queue.get_current()
+        track = self.core.queue.get_current()
         if not track:
             print("[BOT] No track loaded.")
             return
@@ -219,7 +213,7 @@ class PlaybackManager:
             title = track["name"]
 
             # Stop existing
-            self.mixer.stop_music()
+            self.core.mixer.stop_music()
 
             stream_url = await self.get_stream(url)
             if not stream_url:
@@ -227,13 +221,13 @@ class PlaybackManager:
                 return
 
             # Start new track
-            self.mixer.start_music(stream_url)
+            self.core.mixer.start_music(stream_url)
 
-            self.state.playlist_current = track
-            self.state.is_music_playing = True
+            self.core.state.playlist_current = track
+            self.core.state.is_music_playing = True
 
             if not vc.is_playing():
-                vc.play(self.audioSource)
+                vc.play(self.core.audioSource)
 
             print(f"[BOT] Now playing: {title}")
 
@@ -249,27 +243,27 @@ class PlaybackManager:
         await self.send_state()
     
     async def play_ambience(self, url, title):
-        vc = self.state.voice_client
+        vc = self.core.state.voice_client
         if not vc:
             print("[BOT] VC not connected.")
             return
 
         try:
-            self.mixer.stop_ambience()
+            self.core.mixer.stop_ambience()
 
             stream_url = await self.get_stream(url)
             if not stream_url:
                 print(f"[BOT] Failed ambience stream: {title}")
                 return
 
-            self.mixer.start_ambience(stream_url, loop=True)
+            self.core.mixer.start_ambience(stream_url, loop=True)
 
-            self.state.ambience_name = title
-            self.state.ambience_url = url
-            self.state.is_ambience_playing = True
+            self.core.state.ambience_name = title
+            self.core.state.ambience_url = url
+            self.core.state.is_ambience_playing = True
 
             if not vc.is_playing():
-                vc.play(self.audioSource)
+                vc.play(self.core.audioSource)
 
         except Exception as e:
             print(f"[BOT] Failed ambience: {e}")
@@ -303,7 +297,7 @@ class PlaybackManager:
         while True:
             await asyncio.sleep(1)
 
-            proc = self.mixer.proc_music
+            proc = self.core.mixer.proc_music
             if proc and proc.poll() is None:
                 continue  # still playing
             
@@ -318,8 +312,8 @@ class PlaybackManager:
     # IPC STATE UPDATES
     # =====================================================================
     async def send_state(self):
-        if not self.ipc.connected:
+        if not self.core.ipc.connected:
             print("[IPC] Not connected, skipping state update.")
             return
 
-        await self.ipc.send_state(self.state.to_dict())
+        await self.core.ipc.send_state(self.core.state.to_dict())
