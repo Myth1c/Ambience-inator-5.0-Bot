@@ -7,3 +7,5 @@ services:
     volumes:
       - ./data:/app/data    # optional, if you have data files
     command: ["python3", "bot_runner.py"]
+    environment:
+      - PYTHONUNBUFFERED=1
