@@ -2,7 +2,6 @@
 
 import os, json, asyncio, aiohttp, time
 
-from bot import CommandDispatcher
 
 WS_URL = os.getenv("WEB_URL", "").replace("https", "wss") + "/ipc"
 AUTH_KEY = os.getenv("AUTH_KEY")
@@ -14,6 +13,8 @@ class IPCBridge:
     Powered by aiohttp, lifecycle controlled by BotCore.
     """
     def __init__(self, core):
+        from bot import CommandDispatcher # Lazy import to handle this 1 specific circular import
+        
         self.core = core
 
         self.session: aiohttp.ClientSession | None = None

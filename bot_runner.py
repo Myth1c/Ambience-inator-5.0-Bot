@@ -2,7 +2,7 @@
 
 import asyncio, os, aiohttp
 
-from bot import BotCore
+from bot.bot_core import BotCore
 
 
 # -------------------------------------------------------------
