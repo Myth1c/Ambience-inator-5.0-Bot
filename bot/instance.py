@@ -122,5 +122,9 @@ async def stop_ipc_bridge():
         _ipc_task = None
         
     print("[INSTANCE] IPC Bridge Stopped")
-       
+
+def get_ipc_bridge():
+    return _ipc_bridge
+
+
 botConfig = BotConfig()
