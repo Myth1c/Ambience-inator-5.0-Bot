@@ -4,11 +4,8 @@ import os, discord
 
 from config import load_json, save_json
 
-DEFAULT_CONFIG_PATH = os.path.join(
-    os.path.dirname(os.path.dirname(__file__)),
-    "config",
-    "bot_config.json"
-)
+DEFAULT_CONFIG_PATH = os.path.join(os.getcwd(), "config", "bot_config.json")
+
 
 class ConfigManager:
     """
@@ -27,6 +24,8 @@ class ConfigManager:
             "text_channel_id": None,
             "queue_message_id": None,
         }
+        
+        print(f"[CONFIG] Using config file: {self.path}")
 
     # =======================================================================
     # FILE INITIALIZATION
