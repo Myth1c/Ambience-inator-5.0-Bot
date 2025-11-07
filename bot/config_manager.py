@@ -104,6 +104,24 @@ class ConfigManager:
         self.data[key] = self._parse_value(value)
 
         print(f"[CONFIG] Saved {key} = {value}")
+        
+    def save_all(self, new_data: dict):
+        """
+        Save all key/value pairs from new_data to the config.
+        Each value is stringified via the existing save() method.
+        """
+        
+        if not isinstance(new_data, dict):
+            raise ValueError(f"[CONFIG] Invalid data type. Requires dict instead of {type(new_data)}")
+        
+        for key, value in new_data.items():
+            # Reuse regular save()
+            self.save(key, value)
+            
+        print(f"[CONFIG] Updated config variables: {list(new_data.keys())}")
+        
+        
+        
 
     # ============================================================
     # GETTERS
@@ -113,8 +131,6 @@ class ConfigManager:
 
     def set(self, key, value):
         self.save(key, value)
-    
-        # Typed getters
     
     # Typed Getters
     def get_int(self, key, default=None):
