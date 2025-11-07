@@ -90,6 +90,19 @@ class IPCBridge:
     async def _handle_message_frame(self, msg):
         """Dispatch WS frames from aiohttp."""
 
+
+        # --- READY GATE ---
+        if not self.core.ready:
+            if data.get("command") not in ("GET_BOT_STATUS", "PING"):
+                await self.safe_send({
+                    "ok": False,
+                    "command": data.get("command"),
+                    "error": "BOT_NOT_READY",
+                    "ts": time.time()
+                })
+                print("[IPC] Command rejected: Bot is not ready")
+                return
+
         if msg.type == aiohttp.WSMsgType.TEXT:
             try:
                 data = json.loads(msg.data)
