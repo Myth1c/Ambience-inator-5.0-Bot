@@ -93,7 +93,10 @@ class IPCBridge:
 
         # --- READY GATE ---
         if not self.core.ready:
-            if data.get("command") not in ("GET_BOT_STATUS", "PING"):
+            if data.get("command") not in (
+                "SETUP_SAVE", "GET_PLAYBACK_STATE", "GET_PLAYLISTS", "SAVE_PLAYLISTS",
+                "GET_AMBIENCE", "SAVE_AMBIENCE", "GET_BOT_STATUS", "START_BOT"
+                ):
                 await self.safe_send({
                     "ok": False,
                     "command": data.get("command"),

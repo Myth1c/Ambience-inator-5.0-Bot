@@ -186,24 +186,24 @@ class CommandDispatcher:
     # COMMAND TABLE
     # =====================================================================
     COMMANDS = {
-        "SETUP_SAVE":             cmd_setup_save,
-        "GET_PLAYBACK_STATE":     cmd_get_playback_state,
+        "SETUP_SAVE":             cmd_setup_save,               
+        "GET_PLAYBACK_STATE":     cmd_get_playback_state,       
 
-        "PLAY_PLAYLIST":          cmd_play_playlist,
-        "NEXT_SONG":              cmd_next_song,
-        "PREVIOUS_SONG":          cmd_previous_song,
-        "SET_SHUFFLE":            cmd_set_shuffle,
-        "SET_LOOP":               cmd_set_loop,
-        "SET_VOLUME_MUSIC":       cmd_set_volume_music,
+        "PLAY_PLAYLIST":          cmd_play_playlist,            # Online only command
+        "NEXT_SONG":              cmd_next_song,                # Online only command
+        "PREVIOUS_SONG":          cmd_previous_song,            # Online only command
+        "SET_SHUFFLE":            cmd_set_shuffle,              # Online only command
+        "SET_LOOP":               cmd_set_loop,                 # Online only command
+        "SET_VOLUME_MUSIC":       cmd_set_volume_music,         # Online only command
 
-        "PLAY_AMBIENCE":          cmd_play_ambience,
-        "SET_VOLUME_AMBIENCE":    cmd_set_volume_ambience,
+        "PLAY_AMBIENCE":          cmd_play_ambience,            # Online only command
+        "SET_VOLUME_AMBIENCE":    cmd_set_volume_ambience,      # Online only command
 
-        "PAUSE":                  cmd_pause,
-        "RESUME":                 cmd_resume,
+        "PAUSE":                  cmd_pause,                    # Online only command
+        "RESUME":                 cmd_resume,                   # Online only command
 
-        "JOINVC":                 cmd_joinvc,
-        "LEAVEVC":                cmd_leavevc,
+        "JOINVC":                 cmd_joinvc,                   # Online only command
+        "LEAVEVC":                cmd_leavevc,                  # Online only command
 
         "GET_PLAYLISTS":          cmd_get_playlists,
         "SAVE_PLAYLIST":          cmd_save_playlist,
@@ -213,9 +213,9 @@ class CommandDispatcher:
 
         "GET_BOT_STATUS":         cmd_get_bot_status,
         
-        "START_BOT":              cmd_start_bot,
-        "STOP_BOT":               cmd_stop_bot,
-        "REBOOT_BOT":             cmd_reboot_bot,
+        "START_BOT":              cmd_start_bot,                
+        "STOP_BOT":               cmd_stop_bot,                 # Online only command
+        "REBOOT_BOT":             cmd_reboot_bot,               # Online only command
     }
 
 
