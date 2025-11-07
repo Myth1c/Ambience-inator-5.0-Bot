@@ -1,6 +1,6 @@
 # bot/core.py
 
-import asyncio, discord, os
+import asyncio, discord, os, time
 from discord.ext import commands
 
 from bot import IPCBridge, PlaybackManager, StateManager, ConfigManager, MixedAudio, MixedAudioSource, QueueManager, ContentManager, ControlManager, DisplayManager
@@ -92,6 +92,12 @@ class BotCore:
 
         self.ready = True
         print("[CORE] BotCore is fully initialized.")
+        
+        await self.ipc.safe_send({
+            "type": "bot_ready",
+            "status": "online",
+            "ts": time.time()
+        })
         
         self.state.bot_online = "online"
 
