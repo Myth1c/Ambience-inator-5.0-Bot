@@ -120,7 +120,7 @@ class IPCBridge:
             # -----------------------------
             if cmd:
                 print(f"[IPC] Received command: {cmd}")
-                result = await self.dispatcher.handle(self.core, data)
+                result = await self.dispatcher.handle(data)
                 await self.safe_send(result)
                 return
 
@@ -157,7 +157,7 @@ class IPCBridge:
     async def send_state(self):
         """Send full bot state from StateManager."""
 
-        state_payload = self.core.state.as_payload()
+        state_payload = self.core.state.get_state()
 
         await self.safe_send({
             "type": "state_update",
