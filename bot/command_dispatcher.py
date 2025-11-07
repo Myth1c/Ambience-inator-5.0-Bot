@@ -109,8 +109,7 @@ async def dispatch_command(data: dict):
             vc_id = botConfig.voice_channel_id
             if not vc_id:
                 return fail("JOINVC", "Voice channel ID missing")
-            bot = args.get("bot_instance")
-            await join_vc(bot, vc_id)
+            await join_vc(vc_id)
             return success("JOINEDVC")
 
         elif command == "LEAVEVC":
