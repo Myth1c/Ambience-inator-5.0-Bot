@@ -101,7 +101,6 @@ class PlaybackManager:
         self.core.state.playlist = tracks
         self.core.state.playlist_current = tracks[0] if tracks else {"url": None, "name": "None"}
         self.core.state.is_music_playing = False
-        self.core.state.shuffle_mode = False  # optional, reset
 
         print(f"[BOT] Playlist loaded: {name} ({len(tracks)} tracks)")
         await self.send_state()
