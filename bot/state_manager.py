@@ -11,7 +11,7 @@ class StateManager:
         # VOICE + PROCESS STATE
         self.voice_client = None
         self.in_vc = False
-        self.bot_online = "offline"
+        self.bot_online = "online"
 
         # MUSIC STATE
         self.is_music_playing = False
@@ -19,7 +19,7 @@ class StateManager:
         self.playlist_name = "None"
         self.playlist = []
         self.playlist_current = { "url": None, "name": "None" }
-        self.shuffle_mode = False
+        self.shuffle_mode = True
         self.loop_mode = False
 
         # AMBIENCE STATE
