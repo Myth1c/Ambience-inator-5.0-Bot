@@ -99,10 +99,10 @@ class DisplayManager:
                 return
 
             # --- build new embed using queue snapshot ---
-            queue_state = self.core.queue.get_state()
+            queue_state = self.core.queue.export()
             embed = render_queue_embed(queue_state, page=self.page, per_page=self.per_page)
             
-            cfg = self.core.botConfig.data
+            cfg = self.core.botConfig
             text_id = cfg.get_int("text_channel_id")
             msg_id = cfg.get_int("queue_message_id")
             
@@ -130,7 +130,7 @@ class DisplayManager:
             )
             
             if new_msg:
-                self.core.botConfig.save("queue_message_id", new_msg)
+                self.core.botConfig.save("queue_message_id", new_msg.id)
                 print("[DISPLAY] Queue message created")
 
 
