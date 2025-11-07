@@ -9,3 +9,4 @@ from .config_manager import ConfigManager
 from .control_manager import ControlManager
 from .content_manager import ContentManager
 from .audiomixer import MixedAudio, MixedAudioSource
+from .command_dispatcher import CommandDispatcher
