@@ -1,3 +1,5 @@
+# bot/audiomixer.py
+
 import subprocess, numpy as np, discord, os
 
 
@@ -106,7 +108,3 @@ class MixedAudioSource(discord.AudioSource):
 
     def is_opus(self):
         return False  # We’re providing raw PCM
-    
-
-audioMixer = MixedAudio()
-audioSource = MixedAudioSource(audioMixer)
