@@ -94,8 +94,6 @@ class BotCore:
         except Exception as e:
             print(f"[CORE] Error occured while trying to start the IPC Task: {e}")
             
-        # Allow playback manager to broadcast initial state
-        await self.playback.send_state()
 
         self.ready = True
         print("[CORE] BotCore is fully initialized.")
@@ -105,6 +103,9 @@ class BotCore:
             "status": "online",
             "ts": time.time()
         })
+        
+        # Allow playback manager to broadcast initial state
+        await self.playback.send_state()
         
         self.state.bot_online = "online"
 
