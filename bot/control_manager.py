@@ -55,6 +55,7 @@ class ControlManager:
             
         # Reset Core's ready-flag for next startup
         self.core._ready_event_fired = False
+        self.core.ready = False
         
         # Remove the core's bot reference
         self.core.discord_bot = None
@@ -76,6 +77,8 @@ class ControlManager:
 
         except Exception as e:
             print(f"[CONTROL] Error during reboot (stop stage): {e}")
+            return
+            
 
         # Small delay before restart
         await asyncio.sleep(delay)
@@ -87,6 +90,7 @@ class ControlManager:
         except Exception as e:
             print(f"[CONTROL] Error restarting Discord bot: {e}")
             self.core.state.bot_online = "offline"
+            return
 
 
     # =====================================================

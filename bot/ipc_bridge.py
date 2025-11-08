@@ -90,10 +90,17 @@ class IPCBridge:
     async def _handle_message_frame(self, msg):
         """Dispatch WS frames from aiohttp."""
 
+        if msg.type == aiohttp.WSMsgType.TEXT:
+            try:
+                data = json.loads(msg.data)
+            except json.JSONDecodeError:
+                print("[IPC] Invalid JSON:", msg.data)
+                return
 
-        # --- READY GATE ---
-        if not self.core.ready:
-            if data.get("command") not in (
+            msg_type = data.get("type")
+            cmd = data.get("command")
+            
+            if not self.core.ready and cmd not in (
                 "SETUP_SAVE", "GET_PLAYBACK_STATE", "GET_PLAYLISTS", "SAVE_PLAYLISTS",
                 "GET_AMBIENCE", "SAVE_AMBIENCE", "GET_BOT_STATUS", "START_BOT"
                 ):
@@ -105,16 +112,6 @@ class IPCBridge:
                 })
                 print("[IPC] Command rejected: Bot is not ready")
                 return
-
-        if msg.type == aiohttp.WSMsgType.TEXT:
-            try:
-                data = json.loads(msg.data)
-            except json.JSONDecodeError:
-                print("[IPC] Invalid JSON:", msg.data)
-                return
-
-            msg_type = data.get("type")
-            cmd = data.get("command")
 
             # -----------------------------
             # Built-in message types
