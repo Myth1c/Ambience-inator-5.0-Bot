@@ -278,7 +278,7 @@ class IPCBridge:
 
         # Gate commands while bot core is not ready (allow a few setup ones)
         if cmd and not self.core.ready and cmd not in (
-            "SETUP_SAVE", "GET_PLAYBACK_STATE", "GET_PLAYLISTS", "SAVE_PLAYLISTS",
+            "SETUP_SAVE", "GET_PLAYBACK_STATE", "GET_PLAYLISTS", "SAVE_PLAYLIST",
             "GET_AMBIENCE", "SAVE_AMBIENCE", "GET_BOT_STATUS", "START_BOT"
         ):
             await self.send({
