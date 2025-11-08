@@ -314,5 +314,11 @@ class PlaybackManager:
         if not self.core.ipc.connected:
             print("[IPC] Not connected, skipping state update.")
             await self.core.ipc.wait_connected(timeout=10)
+            
+        payload = {
+            "ok": True,
+            "type": "state_update",
+            "payload": self.core.state.get_state()
+        }
 
-        await self.core.ipc.send(payload=self.core.state.get_state())
+        await self.core.ipc.send(payload=payload)
