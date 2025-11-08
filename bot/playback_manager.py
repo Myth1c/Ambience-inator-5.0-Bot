@@ -126,7 +126,7 @@ class PlaybackManager:
             await self.send_state()
 
     async def toggle_shuffle(self):
-        if self.core.state.shuffle_mode:
+        if not self.core.state.shuffle_mode:
             self.core.queue.unshuffle()
         else:
             self.core.queue.shuffle()
