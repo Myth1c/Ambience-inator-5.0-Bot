@@ -69,9 +69,6 @@ class ControlManager:
         print("[CONTROL] Rebooting Discord bot...")
 
         try:
-            # Mark rebooting
-            self.core.state.bot_online = "rebooting"
-
             # Stop Discord client (keeps IPC alive)
             await self.stop_discord_bot()
 
@@ -79,7 +76,9 @@ class ControlManager:
             print(f"[CONTROL] Error during reboot (stop stage): {e}")
             return
             
-
+        
+        # Mark rebooting
+        self.core.state.bot_online = "rebooting"
         # Small delay before restart
         await asyncio.sleep(delay)
 

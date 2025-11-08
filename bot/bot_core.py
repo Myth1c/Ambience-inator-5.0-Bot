@@ -14,6 +14,7 @@ class BotCore:
 
         # ---------- IPC BRIDGE ----------
         self.ipc = IPCBridge(self)
+        self._ipc_task = None
         
         # ---------- CONFIG MANAGER ----------
         self.botConfig = ConfigManager()
@@ -84,9 +85,15 @@ class BotCore:
         await self.load_saved_ids()
 
         # Start IPC
-        asyncio.create_task(self.ipc.listen_loop())
-        print("[CORE] IPC Bridge started")
-
+        try:
+            if self._ipc_task is None:
+                self._ipc_task = asyncio.create_task(self.ipc.listen_loop())
+                print("[CORE] IPC Bridge started")
+            else:
+                print("[CORE] IPC Bridge already running, skipping...")
+        except Exception as e:
+            print(f"[CORE] Error occured while trying to start the IPC Task: {e}")
+            
         # Allow playback manager to broadcast initial state
         await self.playback.send_state()
 
