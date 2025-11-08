@@ -94,7 +94,7 @@ class PlaybackManager:
         tracks = self.core.content.playlist_to_tracklist(entries)
 
         # Fill queue
-        self.core.queue.set_tracks(tracks, name)
+        self.core.queue.set_tracks(tracks, name, self.core.state.shuffle_mode)
 
         # Update state (always a dict for current)
         self.core.state.playlist_name = name
@@ -126,12 +126,14 @@ class PlaybackManager:
             await self.send_state()
 
     async def toggle_shuffle(self):
-        if not self.core.state.shuffle_mode:
-            self.core.queue.unshuffle()
-        else:
-            self.core.queue.shuffle()
-
+        
         self.core.state.shuffle_mode = not self.core.state.shuffle_mode
+        
+        if self.core.state.shuffle_mode:
+            self.core.queue.shuffle()
+        else:
+            self.core.queue.unshuffle()
+
         print(f"[BOT] Shuffle mode: {self.core.state.shuffle_mode}")
         await self.send_state()
         await self.core.display.update_queue_display()

@@ -25,7 +25,7 @@ class QueueManager:
     # =====================================================================
     # BASIC SETUP
     # =====================================================================
-    def set_tracks(self, track_list, playlist_name="None"):
+    def set_tracks(self, track_list, playlist_name="None", shuffle=True):
         """Initialize queue with new tracks."""
         self.playlist_name = playlist_name
         self.tracks = list(track_list)
@@ -38,6 +38,9 @@ class QueueManager:
             self.current_index = 0
         else:
             self.current_index = min(self.current_index, len(self.tracks) - 1)
+            
+        if shuffle:
+            self.shuffle()
 
     def get_current(self):
         """Return current track dict or None."""
