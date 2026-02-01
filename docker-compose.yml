@@ -9,3 +9,4 @@ services:
     command: ["python3", "bot_runner.py"]
     environment:
       - PYTHONUNBUFFERED=1
+    network_mode: "slirp4netns:mtu=1400"
