@@ -147,7 +147,7 @@ class CommandDispatcher:
 
     # ---------- Config / Setup ----------
     async def cmd_setup_save(self, args):
-        self.core.config.save_all(args)
+        self.core.botConfig.save_all(args)
         return self.success("SETUP_SAVE")
 
     async def cmd_get_playback_state(self, args):
