@@ -41,8 +41,8 @@ class PlaybackManager:
                 raise ValueError("Invalid voice channel ID")
 
             # Disconnect existing VC
-            if self.core.state.voice_client and self.core.state.voice_client.is_connected():
-                await self.core.state.voice_client.disconnect(force=True)
+            # if self.core.state.voice_client and self.core.state.voice_client.is_connected():
+            #     await self.core.state.voice_client.disconnect(force=True)
 
             # Connect new VC
             self.core.state.voice_client = await channel.connect()
